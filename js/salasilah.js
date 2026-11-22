@@ -16,9 +16,11 @@
   let hubunganPasangan = [];
   let hubunganPasanganLuar = [];
 
-  // Simpan laluan generasi untuk fungsi Kembali.
   let sejarahPaparan = [];
   let paparanSemasa = null;
+
+  // Cache URL gambar supaya tidak perlu jana semula setiap kali.
+  const gambarCache = new Map();
 
   function elemen(tag, kelas, teks) {
     const e = document.createElement(tag);
@@ -55,6 +57,150 @@
   }
 
   // =====================================================
+  // GAMBAR PROFIL - SUPABASE STORAGE
+  // =====================================================
+
+  async function dapatkanUrlGambar(gambarUrl) {
+    if (!gambarUrl) return null;
+
+    if (/^https?:\/\//i.test(gambarUrl)) {
+      return gambarUrl;
+    }
+
+    if (gambarCache.has(gambarUrl)) {
+      return gambarCache.get(gambarUrl);
+    }
+
+    try {
+      const { data, error } = await db.storage
+        .from("gambar-profil")
+        .createSignedUrl(gambarUrl, 3600);
+
+      if (error) throw error;
+
+      const url = data?.signedUrl || null;
+      gambarCache.set(gambarUrl, url);
+
+      return url;
+
+    } catch (error) {
+      console.warn("Gagal mendapatkan gambar:", gambarUrl, error);
+      return null;
+    }
+  }
+
+  async function muatSemuaGambar() {
+    const semua = [
+      ...ahliSemua,
+      ...ahliPasangan
+    ];
+
+    await Promise.all(
+      semua.map(async ahli => {
+        ahli._gambarPaparan = await dapatkanUrlGambar(
+          ahli.gambar_url
+        );
+      })
+    );
+  }
+
+  function paparGambarKecil(ahli) {
+    if (ahli._gambarPaparan) {
+      const img = elemen("img", "salasilah-thumb");
+
+      img.src = ahli._gambarPaparan;
+      img.alt = "Gambar " + ahli.nama_penuh;
+      img.loading = "lazy";
+
+      img.style.cssText = `
+        width:54px;
+        height:62px;
+        object-fit:cover;
+        border-radius:9px;
+        display:block;
+        margin:0 auto 8px;
+        border:1px solid #00a9ff;
+      `;
+
+      return img;
+    }
+
+    const avatar = elemen(
+      "div",
+      "avatar",
+      ahli.jantina === "LELAKI" ? "♂" : "♀"
+    );
+
+    return avatar;
+  }
+
+  // =====================================================
+  // TARIKH DAN UMUR
+  // =====================================================
+
+  function tarikhObjek(nilai) {
+    if (!nilai) return null;
+
+    const bahagian = String(nilai).substring(0, 10).split("-");
+
+    if (bahagian.length !== 3) return null;
+
+    const tahun = Number(bahagian[0]);
+    const bulan = Number(bahagian[1]);
+    const hari = Number(bahagian[2]);
+
+    if (!tahun || !bulan || !hari) return null;
+
+    const tarikh = new Date(tahun, bulan - 1, hari);
+
+    if (
+      tarikh.getFullYear() !== tahun ||
+      tarikh.getMonth() !== bulan - 1 ||
+      tarikh.getDate() !== hari
+    ) {
+      return null;
+    }
+
+    return tarikh;
+  }
+
+  function formatTarikh(nilai) {
+    const tarikh = tarikhObjek(nilai);
+
+    if (!tarikh) return "-";
+
+    const hari = String(tarikh.getDate()).padStart(2, "0");
+    const bulan = String(tarikh.getMonth() + 1).padStart(2, "0");
+
+    return hari + "-" + bulan + "-" + tarikh.getFullYear();
+  }
+
+  function kiraUmur(tarikhLahir, tarikhAkhir = null) {
+    const lahir = tarikhObjek(tarikhLahir);
+
+    if (!lahir) return null;
+
+    const akhir = tarikhAkhir
+      ? tarikhObjek(tarikhAkhir)
+      : new Date();
+
+    if (!akhir || akhir < lahir) return null;
+
+    let umur = akhir.getFullYear() - lahir.getFullYear();
+
+    const belumSambutHariLahir =
+      akhir.getMonth() < lahir.getMonth() ||
+      (
+        akhir.getMonth() === lahir.getMonth() &&
+        akhir.getDate() < lahir.getDate()
+      );
+
+    if (belumSambutHariLahir) umur--;
+
+    return umur;
+  }
+
+  // =====================================================
   // PASANGAN
   // =====================================================
 
@@ -64,7 +210,6 @@
 
     if (sumber.sumber === "ahli_keluarga") {
 
-      // Pasangan yang kedua-duanya ahli keturunan asal.
       hubunganPasangan
         .filter(r =>
           r.pasangan_1 === sumber.id ||
@@ -89,7 +234,6 @@
           }
         });
 
-      // Pasangan luar keturunan.
       hubunganPasanganLuar
         .filter(r => r.id_ahli_keluarga === sumber.id)
         .forEach(r => {
@@ -109,8 +253,6 @@
 
     } else {
 
-      // Jika individu ialah pasangan luar keturunan,
-      // cari ahli keluarga yang menjadi pasangannya.
       hubunganPasanganLuar
         .filter(r => r.id_ahli_pasangan === sumber.id)
         .forEach(r => {
@@ -133,111 +275,146 @@
   }
 
   // =====================================================
-  // MODAL PROFIL
+  // PROFIL INDIVIDU SAHAJA
   // =====================================================
 
-  function paparMaklumatPasangan(senaraiPasangan) {
-    if (senaraiPasangan.length === 0) {
-      maklumat.append(
-        elemen("p", "", "Maklumat pasangan belum direkodkan.")
+  function bukaProfil(ahli, sumber) {
+    maklumat.replaceChildren();
+
+    const bekasProfil = elemen("div", "profil-salasilah");
+
+    bekasProfil.style.cssText = `
+      text-align:center;
+      padding:10px;
+    `;
+
+    // Gambar standard profil.
+    if (ahli._gambarPaparan) {
+      const gambar = elemen("img", "profil-gambar-standard");
+
+      gambar.src = ahli._gambarPaparan;
+      gambar.alt = "Gambar " + ahli.nama_penuh;
+
+      gambar.style.cssText = `
+        width:150px;
+        height:170px;
+        object-fit:cover;
+        border-radius:12px;
+        border:2px solid #00a9ff;
+        margin:0 auto 15px;
+        display:block;
+      `;
+
+      bekasProfil.append(gambar);
+
+    } else {
+      const tiadaGambar = elemen(
+        "div",
+        "profil-tiada-gambar",
+        ahli.jantina === "LELAKI" ? "♂" : "♀"
       );
-      return;
+
+      tiadaGambar.style.cssText = `
+        width:150px;
+        height:170px;
+        margin:0 auto 15px;
+        border-radius:12px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:55px;
+        background:#e8edf2;
+        color:#65758b;
+      `;
+
+      bekasProfil.append(tiadaGambar);
     }
 
-    maklumat.append(
-      elemen("h3", "", "Maklumat Pasangan")
+    bekasProfil.append(
+      elemen("h3", "", ahli.nama_penuh)
     );
 
-    senaraiPasangan.forEach(rekod => {
-      const bahagian = elemen("div", "");
+    const statusMeninggal =
+      ahli.status_hidup === "MENINGGAL";
 
-      bahagian.style.padding = "10px 0";
-      bahagian.style.borderTop = "1px solid #d9c7a6";
+    const umur = kiraUmur(
+      ahli.tarikh_lahir,
+      statusMeninggal ? ahli.tarikh_meninggal : null
+    );
 
-      bahagian.append(
-        elemen("p", "", "♥ " + rekod.ahli.nama_penuh),
-        elemen(
-          "p",
-          "",
-          "Sumber rekod: " + (
-            rekod.sumber === "ahli_pasangan"
-              ? "Pasangan luar keturunan"
-              : "Ahli keturunan asal"
-          )
-        ),
-        elemen(
-          "p",
-          "",
-          "Status hubungan: " + (rekod.status || "-")
+    const butiran = elemen("div", "");
+
+    butiran.style.cssText = `
+      text-align:left;
+      margin-top:15px;
+      line-height:1.8;
+    `;
+
+    function tambahButiran(label, nilai) {
+      const baris = elemen("p", "");
+      const tajuk = elemen("strong", "", label + ": ");
+
+      baris.append(tajuk);
+      baris.append(document.createTextNode(nilai || "-"));
+
+      butiran.append(baris);
+    }
+
+    tambahButiran(
+      "Jantina",
+      ahli.jantina || "-"
+    );
+
+    if (sumber.sumber === "ahli_keluarga") {
+      tambahButiran(
+        "Generasi",
+        ahli.generasi ? String(ahli.generasi) : "-"
+      );
+    } else {
+      tambahButiran("Kategori", "Pasangan");
+    }
+
+    tambahButiran(
+      "Status",
+      statusMeninggal
+        ? "Telah meninggal dunia"
+        : (ahli.status_hidup || "-")
+    );
+
+    tambahButiran(
+      "Tarikh lahir",
+      formatTarikh(ahli.tarikh_lahir)
+    );
+
+    tambahButiran(
+      statusMeninggal
+        ? "Tarikh kematian"
+        : "Umur",
+      statusMeninggal
+        ? formatTarikh(ahli.tarikh_meninggal)
+        : (
+          umur === null
+            ? "Tidak diketahui"
+            : umur + " tahun"
         )
-      );
-
-      if (rekod.tarikh) {
-        bahagian.append(
-          elemen("p", "", "Tarikh perkahwinan: " + rekod.tarikh)
-        );
-      }
-
-      if (rekod.ahli.status_hidup === "MENINGGAL") {
-        bahagian.append(
-          elemen("p", "", "Status pasangan: Telah meninggal dunia")
-        );
-      }
-
-      maklumat.append(bahagian);
-    });
-  }
-
-  function bukaProfil(ahli) {
-    maklumat.replaceChildren();
-
-    maklumat.append(
-      elemen("h3", "", ahli.nama_penuh),
-      elemen("p", "", "Jantina: " + (ahli.jantina || "-")),
-      elemen("p", "", "Generasi: " + (ahli.generasi || "-")),
-      elemen("p", "", "Status: " + (ahli.status_hidup || "-")),
-      elemen("p", "", "Tempat asal: " + (ahli.tempat_asal || "-"))
     );
 
-    paparMaklumatPasangan(
-      pasanganBagi({
-        id: ahli.id,
-        sumber: "ahli_keluarga"
-      })
-    );
-
-    modal.style.display = "flex";
-  }
-
-  function bukaProfilPasangan(ahli) {
-    maklumat.replaceChildren();
-
-    maklumat.append(
-      elemen("h3", "", ahli.nama_penuh),
-      elemen("p", "", "Kategori: Pasangan luar keturunan"),
-      elemen("p", "", "Jantina: " + (ahli.jantina || "-")),
-      elemen("p", "", "Status: " + (ahli.status_hidup || "-")),
-      elemen("p", "", "Tempat asal: " + (ahli.tempat_asal || "-"))
-    );
-
-    if (ahli.tarikh_lahir) {
-      maklumat.append(
-        elemen("p", "", "Tarikh lahir: " + ahli.tarikh_lahir)
+    if (statusMeninggal) {
+      tambahButiran(
+        "Umur ketika meninggal dunia",
+        umur === null
+          ? "Tidak diketahui"
+          : umur + " tahun"
       );
     }
 
-    if (ahli.tarikh_meninggal) {
-      maklumat.append(
-        elemen("p", "", "Tarikh meninggal: " + ahli.tarikh_meninggal)
-      );
-    }
+    tambahButiran(
+      "Tempat asal",
+      ahli.tempat_asal || "-"
+    );
 
-    paparMaklumatPasangan({
-      ...pasanganBagi({
-        id: ahli.id,
-        sumber: "ahli_pasangan"
-      })
-    });
+    bekasProfil.append(butiran);
+    maklumat.append(bekasProfil);
 
     modal.style.display = "flex";
   }
@@ -253,23 +430,21 @@
   });
 
   // =====================================================
-  // KAD AHLI DAN PASANGAN
+  // KAD AHLI
   // =====================================================
 
-  function ciptaKad(ahli, sumber, label) {
+  function ciptaKad(ahli, sumber, label = "") {
     const kad = elemen("div", "person");
 
     kad.dataset.nama = (ahli.nama_penuh || "").toLowerCase();
 
-    const avatar = elemen(
-      "div",
-      "avatar",
-      ahli.jantina === "LELAKI" ? "♂" : "♀"
+    kad.style.cursor = "pointer";
+    kad.style.position = "relative";
+
+    kad.append(
+      paparGambarKecil(ahli),
+      elemen("strong", "", ahli.nama_penuh)
     );
-
-    const nama = elemen("strong", "", ahli.nama_penuh);
-
-    kad.append(avatar, nama);
 
     if (label) {
       kad.append(elemen("small", "", label));
@@ -289,11 +464,14 @@
       );
     }
 
-    // Butang profil berasingan daripada fungsi keturunan.
-    const butangProfil = elemen("button", "profile-info-btn", "ⓘ");
+    const butangProfil = elemen(
+      "button",
+      "profile-info-btn",
+      "ⓘ"
+    );
 
     butangProfil.type = "button";
-    butangProfil.title = "Lihat maklumat profil";
+    butangProfil.title = "Lihat profil individu ini";
 
     butangProfil.style.cssText = `
       display:block;
@@ -310,18 +488,10 @@
 
     butangProfil.addEventListener("click", e => {
       e.stopPropagation();
-
-      if (sumber.sumber === "ahli_pasangan") {
-        bukaProfilPasangan(ahli);
-      } else {
-        bukaProfil(ahli);
-      }
+      bukaProfil(ahli, sumber);
     });
 
     kad.append(butangProfil);
-
-    // Klik kad membuka generasi seterusnya.
-    kad.style.cursor = "pointer";
 
     kad.addEventListener("click", () => {
       bukaKeturunan(sumber);
@@ -330,8 +500,31 @@
     return kad;
   }
 
+  function tambahAhliDanPasangan(bekas, ahli, sumber) {
+    bekas.append(
+      ciptaKad(ahli, sumber)
+    );
+
+    pasanganBagi(sumber).forEach(rekod => {
+      bekas.append(
+        elemen("span", "spouse-label", "♥")
+      );
+
+      bekas.append(
+        ciptaKad(
+          rekod.ahli,
+          {
+            id: rekod.ahli.id,
+            sumber: rekod.sumber
+          },
+          "Pasangan"
+        )
+      );
+    });
+  }
+
   // =====================================================
-  // HUBUNGAN IBU BAPA DAN ANAK
+  // HUBUNGAN BIOLOGI
   // =====================================================
 
   function sumberIbuBapa(h) {
@@ -398,43 +591,52 @@
   }
 
   // =====================================================
-  // PAPARAN AWAL - GENERASI PERTAMA
+  // PAPARAN AWAL: GENERASI 1 DAN GENERASI 2
   // =====================================================
 
-  function paparGenerasiPertama() {
+  function paparGenerasiAwal() {
     paparan.replaceChildren();
 
-    const generasi = elemen("section", "generation");
+    const semuaKeluarga = kumpulKeluarga();
 
-    generasi.append(
-      elemen("h2", "generation-title", "Generasi Pertama")
+    const generasiTersedia = [...new Set(
+      ahliSemua
+        .map(a => a.generasi)
+        .filter(g => g != null)
+    )].sort((a, b) => a - b);
+
+    if (!generasiTersedia.length) {
+      mesej.textContent = "Tiada rekod generasi ditemui.";
+      return;
+    }
+
+    const genPertama = generasiTersedia[0];
+    const genKedua = generasiTersedia[1];
+
+    // Generasi 1.
+    const seksyen1 = elemen("section", "generation");
+
+    seksyen1.append(
+      elemen("h2", "generation-title", "Generasi " + genPertama)
     );
 
     const nota = elemen(
       "p",
       "",
-      "Klik kad ahli untuk melihat generasi anak-anak. Tekan ⓘ untuk melihat profil."
+      "Klik kad untuk melihat keturunan. Klik ⓘ untuk melihat profil."
     );
 
     nota.style.textAlign = "center";
-    nota.style.marginBottom = "20px";
+    seksyen1.append(nota);
 
-    generasi.append(nota);
-
-    const adaIbuBapa = new Set(
-      hubunganAnak
-        .filter(h => h.jenis_hubungan === "BIOLOGI")
-        .map(h => h.id_anak)
+    const ahliGen1 = ahliSemua.filter(
+      a => a.generasi === genPertama
     );
 
-    const akar = ahliSemua.filter(
-      a => !adaIbuBapa.has(a.id)
-    );
+    const sudahPapar1 = new Set();
 
-    const sudahPapar = new Set();
-
-    akar.forEach(ahli => {
-      if (sudahPapar.has(ahli.id)) return;
+    ahliGen1.forEach(ahli => {
+      if (sudahPapar1.has(ahli.id)) return;
 
       const keluarga = elemen("div", "family-group");
       const baris = elemen("div", "parents-row");
@@ -444,51 +646,154 @@
         sumber: "ahli_keluarga"
       };
 
-      baris.append(ciptaKad(ahli, sumber));
-      sudahPapar.add(ahli.id);
+      tambahAhliDanPasangan(baris, ahli, sumber);
 
-      pasanganBagi(sumber).forEach(rekod => {
-        const kunci = kunciSumber({
-          id: rekod.ahli.id,
-          sumber: rekod.sumber
-        });
+      sudahPapar1.add(ahli.id);
 
-        if (sudahPapar.has(kunci)) return;
-
-        baris.append(
-          elemen("span", "spouse-label", "♥")
-        );
-
-        baris.append(
-          ciptaKad(
-            rekod.ahli,
-            {
-              id: rekod.ahli.id,
-              sumber: rekod.sumber
-            },
-            "Pasangan"
-          )
-        );
-
-        sudahPapar.add(kunci);
+      pasanganBagi(sumber).forEach(r => {
+        if (r.sumber === "ahli_keluarga") {
+          sudahPapar1.add(r.ahli.id);
+        }
       });
 
       keluarga.append(baris);
-      generasi.append(keluarga);
+      seksyen1.append(keluarga);
     });
 
-    paparan.append(generasi);
+    paparan.append(seksyen1);
+
+    // Generasi 2.
+    if (genKedua !== undefined) {
+      const seksyen2 = elemen("section", "generation");
+
+      seksyen2.append(
+        elemen("h2", "generation-title", "Generasi " + genKedua)
+      );
+
+      const ahliGen2 = ahliSemua.filter(
+        a => a.generasi === genKedua
+      );
+
+      const idGen2 = new Set(ahliGen2.map(a => a.id));
+      const kumpulanPaparan = new Map();
+      const sudahPapar2 = new Set();
+
+      semuaKeluarga.forEach(k => {
+        if (!idGen2.has(k.idAnak)) return;
+
+        const kunci = kunciIbuBapa(k.ibuBapa);
+
+        if (!kumpulanPaparan.has(kunci)) {
+          kumpulanPaparan.set(kunci, {
+            ibuBapa: k.ibuBapa,
+            anak: []
+          });
+        }
+
+        kumpulanPaparan.get(kunci).anak.push(k);
+      });
+
+      kumpulanPaparan.forEach(kumpulan => {
+        const keluarga = elemen("div", "family-group");
+
+        const namaIbuBapa = kumpulan.ibuBapa
+          .map(namaSumber)
+          .filter(Boolean)
+          .join(" & ");
+
+        keluarga.append(
+          elemen(
+            "small",
+            "",
+            "Anak BIOLOGI kepada: " + namaIbuBapa
+          )
+        );
+
+        keluarga.append(
+          elemen("div", "connector")
+        );
+
+        const bekasAnak = elemen("div", "children");
+
+        kumpulan.anak.sort((a, b) =>
+          (a.susunan ?? 9999) - (b.susunan ?? 9999)
+        );
+
+        kumpulan.anak.forEach(rekod => {
+          const ahli = cariAhli(rekod.idAnak);
+
+          if (!ahli || sudahPapar2.has(ahli.id)) return;
+
+          const baris = elemen("div", "parents-row");
+
+          tambahAhliDanPasangan(
+            baris,
+            ahli,
+            {
+              id: ahli.id,
+              sumber: "ahli_keluarga"
+            }
+          );
+
+          bekasAnak.append(baris);
+          sudahPapar2.add(ahli.id);
+        });
+
+        if (bekasAnak.children.length) {
+          keluarga.append(bekasAnak);
+          seksyen2.append(keluarga);
+        }
+      });
+
+      // Rekod Generasi 2 yang belum mempunyai hubungan BIOLOGI.
+      const belumAdaHubungan = ahliGen2.filter(
+        a => !sudahPapar2.has(a.id)
+      );
+
+      if (belumAdaHubungan.length) {
+        const keluarga = elemen("div", "family-group");
+        const bekas = elemen("div", "children");
+
+        keluarga.append(
+          elemen(
+            "small",
+            "",
+            "Rekod Generasi " + genKedua +
+            " yang belum mempunyai hubungan BIOLOGI"
+          )
+        );
+
+        belumAdaHubungan.forEach(ahli => {
+          const baris = elemen("div", "parents-row");
+
+          tambahAhliDanPasangan(
+            baris,
+            ahli,
+            {
+              id: ahli.id,
+              sumber: "ahli_keluarga"
+            }
+          );
+
+          bekas.append(baris);
+        });
+
+        keluarga.append(bekas);
+        seksyen2.append(keluarga);
+      }
+
+      paparan.append(seksyen2);
+    }
 
     mesej.textContent =
       "Jumlah ahli keluarga: " + ahliSemua.length +
-      " | Jumlah generasi: " +
-      new Set(ahliSemua.map(a => a.generasi)).size;
+      " | Jumlah generasi: " + generasiTersedia.length;
 
     tapisCarian();
   }
 
   // =====================================================
-  // PAPAR KETURUNAN AHLI YANG DIPILIH
+  // PAPAR KETURUNAN GENERASI SETERUSNYA
   // =====================================================
 
   function bukaKeturunan(sumber) {
@@ -511,7 +816,7 @@
 
   function paparKeturunan() {
     if (!paparanSemasa) {
-      paparGenerasiPertama();
+      paparGenerasiAwal();
       return;
     }
 
@@ -540,6 +845,7 @@
     );
 
     butangKembali.type = "button";
+
     butangKembali.style.cssText = `
       padding:9px 18px;
       border:1px solid #00a9ff;
@@ -559,39 +865,22 @@
       elemen("h2", "generation-title", "Keturunan " + ahli.nama_penuh)
     );
 
-    // Paparan ahli yang dipilih bersama pasangan.
-    const tajuk = elemen("div", "family-group");
-    const barisPasangan = elemen("div", "parents-row");
+    // Individu dipilih bersama pasangan.
+    const kumpulanInduk = elemen("div", "family-group");
+    const barisInduk = elemen("div", "parents-row");
 
-    barisPasangan.append(
-      ciptaKad(ahli, sumber, "Ahli dipilih")
+    tambahAhliDanPasangan(
+      barisInduk,
+      ahli,
+      sumber
     );
 
-    pasanganBagi(sumber).forEach(rekod => {
-      barisPasangan.append(
-        elemen("span", "spouse-label", "♥")
-      );
-
-      barisPasangan.append(
-        ciptaKad(
-          rekod.ahli,
-          {
-            id: rekod.ahli.id,
-            sumber: rekod.sumber
-          },
-          "Pasangan"
-        )
-      );
-    });
-
-    tajuk.append(barisPasangan);
-    generasi.append(tajuk);
+    kumpulanInduk.append(barisInduk);
+    generasi.append(kumpulanInduk);
 
     const semuaKeluarga = kumpulKeluarga();
     const kunciDipilih = kunciSumber(sumber);
 
-    // Cari kumpulan keluarga yang mempunyai ahli dipilih
-    // sebagai salah seorang ibu atau bapa BIOLOGI.
     const kumpulanPaparan = new Map();
 
     semuaKeluarga.forEach(k => {
@@ -618,7 +907,6 @@
     kumpulanPaparan.forEach(kumpulan => {
       const keluarga = elemen("div", "family-group");
 
-      // Paparkan pasangan bagi kumpulan anak tersebut.
       const namaIbuBapa = kumpulan.ibuBapa
         .map(namaSumber)
         .filter(Boolean)
@@ -647,20 +935,22 @@
 
         if (!anak) return;
 
-        bekasAnak.append(
-          ciptaKad(
-            anak,
-            {
-              id: anak.id,
-              sumber: "ahli_keluarga"
-            }
-          )
+        const barisAnak = elemen("div", "parents-row");
+
+        tambahAhliDanPasangan(
+          barisAnak,
+          anak,
+          {
+            id: anak.id,
+            sumber: "ahli_keluarga"
+          }
         );
 
+        bekasAnak.append(barisAnak);
         jumlahAnak++;
       });
 
-      if (bekasAnak.children.length > 0) {
+      if (bekasAnak.children.length) {
         keluarga.append(bekasAnak);
         generasi.append(keluarga);
       }
@@ -670,7 +960,7 @@
       const nota = elemen(
         "p",
         "",
-        "Belum ada rekod anak BIOLOGI untuk ahli ini."
+        "Belum ada rekod anak BIOLOGI untuk individu ini."
       );
 
       nota.style.cssText = `
@@ -685,7 +975,7 @@
     paparan.append(generasi);
 
     mesej.textContent =
-      "Ahli dipilih: " + ahli.nama_penuh +
+      "Individu dipilih: " + ahli.nama_penuh +
       " | Jumlah anak BIOLOGI: " + jumlahAnak;
 
     tapisCarian();
@@ -699,7 +989,7 @@
     if (paparanSemasa) {
       paparKeturunan();
     } else {
-      paparGenerasiPertama();
+      paparGenerasiAwal();
     }
   }
 
@@ -739,21 +1029,56 @@
         pasanganLuarHubungan
       ] = await Promise.all([
         db.from("ahli_keluarga")
-          .select("id,nama_penuh,jantina,generasi,status_hidup,tempat_asal")
+          .select(`
+            id,
+            nama_penuh,
+            jantina,
+            generasi,
+            status_hidup,
+            tempat_asal,
+            tarikh_lahir,
+            tarikh_meninggal,
+            gambar_url
+          `)
           .order("generasi", { ascending: true })
           .order("nama_penuh", { ascending: true }),
 
         db.from("ahli_pasangan")
-          .select("id,nama_penuh,jantina,tarikh_lahir,tarikh_meninggal,status_hidup,tempat_asal"),
+          .select(`
+            id,
+            nama_penuh,
+            jantina,
+            tarikh_lahir,
+            tarikh_meninggal,
+            status_hidup,
+            tempat_asal,
+            gambar_url
+          `),
 
         db.from("hubungan_ibubapa_anak")
-          .select("id_ibubapa,id_ibubapa_pasangan,id_anak,jenis_hubungan,susunan_kelahiran"),
+          .select(`
+            id_ibubapa,
+            id_ibubapa_pasangan,
+            id_anak,
+            jenis_hubungan,
+            susunan_kelahiran
+          `),
 
         db.from("hubungan_pasangan")
-          .select("pasangan_1,pasangan_2,status_hubungan,tarikh_perkahwinan"),
+          .select(`
+            pasangan_1,
+            pasangan_2,
+            status_hubungan,
+            tarikh_perkahwinan
+          `),
 
         db.from("hubungan_pasangan_luar")
-          .select("id_ahli_keluarga,id_ahli_pasangan,status_hubungan,tarikh_perkahwinan")
+          .select(`
+            id_ahli_keluarga,
+            id_ahli_pasangan,
+            status_hubungan,
+            tarikh_perkahwinan
+          `)
       ]);
 
       if (ahli.error) throw ahli.error;
@@ -773,7 +1098,9 @@
       sejarahPaparan = [];
       paparanSemasa = null;
 
-      paparGenerasiPertama();
+      await muatSemuaGambar();
+
+      paparGenerasiAwal();
 
     } catch (error) {
       console.error("RALAT SALASILAH:", error);
