@@ -1,68 +1,87 @@
 
-const db = window.supabaseClient;
+(function () {
+  "use strict";
 
-// DAFTAR AKAUN AHLI KELUARGA
-window.daftarAkaun = async function (nama, email, password) {
-  const { data, error } = await db.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        nama_pengguna: nama
-      }
+  function dapatkanDB() {
+    if (!window.supabaseClient) {
+      throw new Error("Sambungan Supabase belum tersedia.");
     }
-  });
 
-  if (error) throw error;
-
-  return data;
-};
-
-// LOG MASUK
-window.logMasuk = async function (email, password) {
-  const { data, error } = await db.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) throw error;
-
-  const { data: profil, error: profilError } = await db
-    .from("pengguna_keluarga")
-    .select("nama_pengguna, peranan, status_akaun")
-    .eq("user_id", data.user.id)
-    .single();
-
-  if (profilError || !profil) {
-    await db.auth.signOut();
-    throw new Error("Profil ahli tidak dapat disahkan.");
+    return window.supabaseClient;
   }
 
-  if (profil.status_akaun === "MENUNGGU") {
-    await db.auth.signOut();
-    throw new Error("Akaun anda masih menunggu kelulusan pentadbir.");
-  }
+  // PENDAFTARAN AKAUN
+  window.daftarAkaun = async function (nama, email, password) {
+    const db = dapatkanDB();
 
-  if (profil.status_akaun === "DITOLAK") {
-    await db.auth.signOut();
-    throw new Error("Pendaftaran akaun anda tidak diluluskan.");
-  }
+    const { data, error } = await db.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          nama_pengguna: nama
+        }
+      }
+    });
 
-  if (profil.status_akaun !== "DILULUSKAN") {
-    await db.auth.signOut();
-    throw new Error("Status akaun tidak sah.");
-  }
+    if (error) throw error;
 
-window.location.href = "dashboard.html";
+    return data;
+  };
 
-  return profil;
-};
+  // LOG MASUK
+  window.logMasuk = async function (email, password) {
+    const db = dapatkanDB();
 
-// LOG KELUAR
-window.logKeluar = async function () {
-  const { error } = await db.auth.signOut();
+    const { data, error } = await db.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
 
-  if (error) throw error;
+    if (error) throw error;
 
-  window.location.href = "login.html";
-};
+    const { data: profil, error: profilError } = await db
+      .from("pengguna_keluarga")
+      .select("nama_pengguna, peranan, status_akaun")
+      .eq("user_id", data.user.id)
+      .single();
+
+    if (profilError || !profil) {
+      await db.auth.signOut();
+      throw new Error(
+        "Profil pengguna tidak dijumpai. Sila hubungi pentadbir."
+      );
+    }
+
+    if (profil.status_akaun !== "DILULUSKAN") {
+      await db.auth.signOut();
+
+      if (profil.status_akaun === "MENUNGGU") {
+        throw new Error(
+          "Akaun anda masih menunggu kelulusan pentadbir."
+        );
+      }
+
+      throw new Error(
+        "Akaun anda belum diluluskan untuk mengakses sistem."
+      );
+    }
+
+    window.location.href = "dashboard.html";
+
+    return profil;
+  };
+
+  // LOG KELUAR
+  window.logKeluar = async function () {
+    const db = dapatkanDB();
+
+    const { error } = await db.auth.signOut();
+
+    if (error) throw error;
+
+    window.location.href = "login.html";
+  };
+
+  console.log("Auth.js berjaya dimuatkan.");
+})();
