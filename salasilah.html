@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salasilah Keluarga | Pok Mark Chendol</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cream: #f8f3e8;
+      --paper: #fffdf7;
+      --brown: #60452e;
+      --dark: #38291e;
+      --gold: #bd9551;
+      --muted: #887b6d;
+      --line: #d9c7a6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--dark);
+      font-family: Inter, sans-serif;
+    }
+
+    header {
+      padding: 25px 20px;
+      text-align: center;
+      background: var(--brown);
+      color: white;
+      border-bottom: 5px solid var(--gold);
+    }
+
+    header h1 {
+      margin: 0;
+      font-family: "Playfair Display", serif;
+      font-size: clamp(22px, 4vw, 34px);
+    }
+
+    header p {
+      margin: 9px 0 0;
+      color: #ead9b9;
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 22px auto;
+      padding: 0 18px;
+    }
+
+    .toolbar a {
+      text-decoration: none;
+      color: white;
+      background: var(--brown);
+      padding: 11px 17px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .toolbar input {
+      padding: 11px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      width: min(100%, 280px);
+      background: white;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 0 18px 50px;
+    }
+
+    .intro {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .intro h2 {
+      font-family: "Playfair Display", serif;
+      color: var(--brown);
+      font-size: 25px;
+    }
+
+    .intro p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .generation {
+      margin: 35px 0;
+      padding: 22px;
+      background: rgba(255,253,247,.7);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+    }
+
+    .generation-title {
+      text-align: center;
+      color: var(--brown);
+      font-family: "Playfair Display", serif;
+      font-size: 22px;
+      margin: 0 0 22px;
+    }
+
+    .family-group {
+      margin: 25px auto;
+      max-width: 1000px;
+      text-align: center;
+    }
+
+    .parents {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .connector {
+      width: 2px;
+      height: 28px;
+      background: var(--gold);
+      margin: auto;
+    }
+
+    .children {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 13px;
+      border-top: 2px solid var(--line);
+      padding-top: 22px;
+      position: relative;
+    }
+
+    .person {
+      width: 175px;
+      padding: 15px 10px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-bottom: 4px solid var(--gold);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: .2s;
+      text-align: center;
+      color: var(--dark);
+    }
+
+    .person:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 7px 20px #60452e20;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 9px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #eee2cb;
+      color: var(--brown);
+      font-size: 21px;
+    }
+
+    .person strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .person small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .spouse-label {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 19px;
+    }
+
+    #mesej {
+      text-align: center;
+      padding: 18px;
+      color: var(--brown);
+      font-size: 14px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #0009;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      width: min(100%, 420px);
+      background: var(--paper);
+      border-radius: 15px;
+      padding: 25px;
+      position: relative;
+      border-top: 5px solid var(--gold);
+    }
+
+    .modal-content h3 {
+      font-family: "Playfair Display", serif;
+      color: var(--brown);
+    }
+
+    .modal-content p {
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .close {
+      position: absolute;
+      right: 15px;
+      top: 12px;
+      border: 0;
+      background: transparent;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    @media(max-width:600px) {
+      .generation { padding: 14px 8px; }
+      .person { width: 145px; }
+      .toolbar { align-items: stretch; }
+      .toolbar input { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Salasilah Keluarga</h1>
+  <p>POK MARK CHENDOL · MERCHANG, MARANG, TERENGGANU</p>
+</header>
+
+<div class="toolbar">
+  <a href="dashboard.html">← Kembali ke Dashboard</a>
+  <input
+    type="search"
+    id="carianAhli"
+    placeholder="Cari nama ahli keluarga..."
+  >
+</div>
+
+<main>
+  <section class="intro">
+    <h2>Warisan Keturunan Keluarga</h2>
+    <p>Susur galur keluarga berdasarkan rekod yang telah disahkan.</p>
+  </section>
+
+  <div id="mesej">Memuatkan salasilah keluarga...</div>
+  <div id="paparanSalasilah"></div>
+</main>
+
+<div class="modal" id="modalAhli">
+  <div class="modal-content">
+    <button class="close" id="tutupModal">&times;</button>
+    <div id="maklumatAhli"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=4"></script>
+<script src="./js/auth-guard.js?v=4"></script>
+<script src="./js/salasilah.js?v=1"></script>
+
+</body>
+</html>
