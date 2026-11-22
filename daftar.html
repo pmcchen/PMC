@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendaftaran Ahli | Pok Mark Chendol</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      font-family: Georgia, serif;
+      background: #eee5d3;
+      color: #493525;
+    }
+    .panel {
+      width: 100%;
+      max-width: 440px;
+      padding: 36px;
+      background: #fffaf0;
+      border: 1px solid #d7c39c;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px #59452b22;
+    }
+    h1 { text-align: center; font-size: 24px; }
+    .subtitle { text-align: center; color: #8b7355; margin-bottom: 25px; }
+    label { display: block; margin: 15px 0 7px; font-weight: bold; }
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cdbb9a;
+      border-radius: 8px;
+      background: #fffdf8;
+      font-size: 15px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 23px;
+      border: 0;
+      border-radius: 8px;
+      background: #79552e;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: wait; }
+    .notice {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f1e8d6;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .links { text-align: center; margin-top: 20px; }
+    a { color: #8b642f; }
+    #mesej { margin-top: 16px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <h1>Pendaftaran Ahli</h1>
+    <div class="subtitle">SALASILAH KELUARGA POK MARK CHENDOL</div>
+
+    <form id="daftarForm">
+      <label for="nama">Nama penuh</label>
+      <input id="nama" type="text" required maxlength="150"
+             autocomplete="name">
+
+      <label for="email">Alamat emel</label>
+      <input id="email" type="email" required autocomplete="email">
+
+      <label for="password">Kata laluan</label>
+      <input id="password" type="password" required minlength="8"
+             autocomplete="new-password">
+
+      <button id="daftarButton" type="submit">DAFTAR AKAUN</button>
+    </form>
+
+    <div class="notice">
+      Pendaftaran memerlukan pengesahan emel jika fungsi tersebut
+      diaktifkan dan kelulusan pentadbir sebelum akses keluarga diberikan.
+    </div>
+
+    <div id="mesej" role="status"></div>
+
+    <div class="links">
+      Sudah mempunyai akaun?
+      <a href="login.html">Log masuk</a>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+
+  <script>
+    const form = document.getElementById("daftarForm");
+    const mesej = document.getElementById("mesej");
+    const button = document.getElementById("daftarButton");
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      button.disabled = true;
+      mesej.textContent = "Sedang mendaftarkan akaun...";
+
+      try {
+        const data = await window.daftarAkaun(
+          document.getElementById("nama").value.trim(),
+          document.getElementById("email").value.trim(),
+          document.getElementById("password").value
+        );
+
+        if (data.session) {
+          mesej.textContent =
+            "Pendaftaran diterima. Akaun anda menunggu kelulusan pentadbir.";
+        } else {
+          mesej.textContent =
+            "Pendaftaran diterima. Sila semak emel untuk pengesahan jika diminta. Selepas itu, akaun menunggu kelulusan pentadbir.";
+        }
+
+        form.reset();
+      } catch (error) {
+        mesej.textContent = "Pendaftaran gagal: " + error.message;
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
