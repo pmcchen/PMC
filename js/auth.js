@@ -1,45 +1,68 @@
 
-window.sahkanAkses = async function (perananDiperlukan = null) {
-  const db = window.supabaseClient;
+const db = window.supabaseClient;
 
-  const { data: sessionData, error: sessionError } =
-    await db.auth.getSession();
+// DAFTAR AKAUN AHLI KELUARGA
+window.daftarAkaun = async function (nama, email, password) {
+  const { data, error } = await db.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        nama_pengguna: nama
+      }
+    }
+  });
 
-  if (sessionError || !sessionData.session) {
-    window.location.replace("login.html");
-    return null;
-  }
+  if (error) throw error;
 
-  const user = sessionData.session.user;
+  return data;
+};
+
+// LOG MASUK
+window.logMasuk = async function (email, password) {
+  const { data, error } = await db.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) throw error;
 
   const { data: profil, error: profilError } = await db
     .from("pengguna_keluarga")
     .select("nama_pengguna, peranan, status_akaun")
-    .eq("user_id", user.id)
+    .eq("user_id", data.user.id)
     .single();
 
-  if (
-    profilError ||
-    !profil ||
-    profil.status_akaun !== "DILULUSKAN"
-  ) {
+  if (profilError || !profil) {
     await db.auth.signOut();
-    window.location.replace("login.html");
-    return null;
+    throw new Error("Profil ahli tidak dapat disahkan.");
   }
 
-  if (perananDiperlukan && profil.peranan !== perananDiperlukan) {
-    window.location.replace("dashboard.html");
-    return null;
+  if (profil.status_akaun === "MENUNGGU") {
+    await db.auth.signOut();
+    throw new Error("Akaun anda masih menunggu kelulusan pentadbir.");
   }
 
-  window.currentFamilyUser = {
-    id: user.id,
-    email: user.email,
-    nama: profil.nama_pengguna,
-    peranan: profil.peranan,
-    status: profil.status_akaun
-  };
+  if (profil.status_akaun === "DITOLAK") {
+    await db.auth.signOut();
+    throw new Error("Pendaftaran akaun anda tidak diluluskan.");
+  }
 
-  return window.currentFamilyUser;
+  if (profil.status_akaun !== "DILULUSKAN") {
+    await db.auth.signOut();
+    throw new Error("Status akaun tidak sah.");
+  }
+
+window.location.href = "dashboard.html";
+
+  return profil;
+};
+
+// LOG KELUAR
+window.logKeluar = async function () {
+  const { error } = await db.auth.signOut();
+
+  if (error) throw error;
+
+  window.location.href = "login.html";
 };
