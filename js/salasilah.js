@@ -724,19 +724,20 @@
 
           if (!ahli || sudahPapar2.has(ahli.id)) return;
 
-          const baris = elemen("div", "parents-row");
+const baris = elemen("div", "parents-row");
 
-          tambahAhliDanPasangan(
-            baris,
-            ahli,
-            {
-              id: ahli.id,
-              sumber: "ahli_keluarga"
-            }
-          );
+baris.append(
+  ciptaKad(
+    ahli,
+    {
+      id: ahli.id,
+      sumber: "ahli_keluarga"
+    }
+  )
+);
 
-          bekasAnak.append(baris);
-          sudahPapar2.add(ahli.id);
+bekasAnak.append(baris);
+sudahPapar2.add(ahli.id);
         });
 
         if (bekasAnak.children.length) {
@@ -764,18 +765,19 @@
         );
 
         belumAdaHubungan.forEach(ahli => {
-          const baris = elemen("div", "parents-row");
+const baris = elemen("div", "parents-row");
 
-          tambahAhliDanPasangan(
-            baris,
-            ahli,
-            {
-              id: ahli.id,
-              sumber: "ahli_keluarga"
-            }
-          );
+baris.append(
+  ciptaKad(
+    ahli,
+    {
+      id: ahli.id,
+      sumber: "ahli_keluarga"
+    }
+  )
+);
 
-          bekas.append(baris);
+bekas.append(baris);
         });
 
         keluarga.append(bekas);
