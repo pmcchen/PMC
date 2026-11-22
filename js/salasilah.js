@@ -132,35 +132,38 @@
   }
 
   // Paparkan generasi pertama: ahli yang tiada rekod ibu bapa.
-  function paparGenerasiPertama(ahliAkar, seksyen) {
-    const sudahPapar = new Set();
 
-    ahliAkar.forEach(ahli => {
-      if (sudahPapar.has(ahli.id)) return;
+function paparGenerasiPertama(ahliAkar, seksyen) {
+  const sudahPapar = new Set();
 
-      const kumpulan = elemen("div", "family-group");
-      const pasangan = pasanganBagi(ahli.id);
+  ahliAkar.forEach(ahli => {
+    if (sudahPapar.has(ahli.id)) return;
 
-      kumpulan.append(kadAhli(ahli));
-      sudahPapar.add(ahli.id);
+    const kumpulan = elemen("div", "family-group");
+    const barisPasangan = elemen("div", "parents-row");
 
-      if (pasangan && !sudahPapar.has(pasangan)) {
-        const dataPasangan = cariAhli(pasangan);
+    const pasangan = pasanganBagi(ahli.id);
 
-        if (dataPasangan) {
-          kumpulan.append(
-            elemen("div", "connector"),
-            elemen("span", "spouse-label", "♥"),
-            kadAhli(dataPasangan)
-          );
+    barisPasangan.append(kadAhli(ahli));
+    sudahPapar.add(ahli.id);
 
-          sudahPapar.add(pasangan);
-        }
+    if (pasangan && !sudahPapar.has(pasangan)) {
+      const dataPasangan = cariAhli(pasangan);
+
+      if (dataPasangan) {
+        barisPasangan.append(
+          elemen("span", "spouse-label", "♥")
+        );
+
+        barisPasangan.append(kadAhli(dataPasangan));
+        sudahPapar.add(pasangan);
       }
+    }
 
-      seksyen.append(kumpulan);
-    });
-  }
+    kumpulan.append(barisPasangan);
+    seksyen.append(kumpulan);
+  });
+}
 
   // Paparkan generasi anak. Set ID memastikan setiap anak sekali sahaja.
   function paparGenerasiAnak(nomborGenerasi, ahliGenerasi, semuaKeluarga, seksyen) {
