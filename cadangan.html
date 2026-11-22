@@ -1,0 +1,491 @@
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadangan Ahli Keluarga | Pok Mark Chendol</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --cream: #f7f2e8;
+    --paper: #fffdf8;
+    --brown: #493323;
+    --brown2: #72543a;
+    --gold: #b58a43;
+    --gold-light: #ead9b5;
+    --text: #3e3329;
+    --muted: #877b6d;
+    --border: #e5dac8;
+    --green: #54734d;
+    --red: #a34d42;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+}
+
+header {
+    background: var(--brown);
+    color: white;
+    padding: 25px 20px;
+    border-bottom: 4px solid var(--gold);
+}
+
+.header-inner {
+    max-width: 1050px;
+    margin: auto;
+}
+
+.brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: .4px;
+}
+
+.header-sub {
+    color: #e5d4b7;
+    font-size: 12px;
+    margin-top: 5px;
+    letter-spacing: 1.5px;
+}
+
+nav {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 13px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+nav a {
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+nav a:hover { color: var(--gold); }
+
+main {
+    max-width: 900px;
+    margin: 22px auto 55px;
+    padding: 0 16px;
+}
+
+.page-heading {
+    margin-bottom: 22px;
+}
+
+.page-heading h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--brown);
+    font-size: 29px;
+    margin: 0 0 7px;
+}
+
+.page-heading p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.panel {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 25px;
+    margin-bottom: 18px;
+    box-shadow: 0 5px 18px rgba(73,51,35,.045);
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--brown);
+    font-size: 20px;
+    border-bottom: 1px solid var(--gold-light);
+    padding-bottom: 12px;
+    margin: 0 0 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 17px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.field.full { grid-column: 1 / -1; }
+
+label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brown);
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fffefa;
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(181,138,67,.12);
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.hint {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.required { color: var(--red); }
+
+.photo-area {
+    border: 1px dashed #c9b58f;
+    border-radius: 12px;
+    padding: 22px;
+    text-align: center;
+    background: #fcf8ef;
+}
+
+.photo-preview {
+    width: 135px;
+    height: 135px;
+    border-radius: 50%;
+    border: 3px solid var(--gold-light);
+    object-fit: cover;
+    display: none;
+    margin: 0 auto 14px;
+    background: #eee5d5;
+}
+
+.photo-placeholder {
+    width: 135px;
+    height: 135px;
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    background: #eee5d5;
+    color: var(--brown2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+}
+
+.upload-label {
+    display: inline-block;
+    background: var(--brown);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.upload-label:hover { background: var(--brown2); }
+
+#gambar { display: none; }
+
+.relationship-note {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #f8f0df;
+    color: #70552e;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 15px;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 13px 22px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--brown);
+    color: white;
+}
+
+.btn-primary:hover { background: var(--brown2); }
+.btn-primary:disabled { opacity: .55; cursor: wait; }
+
+.btn-secondary {
+    background: #eee5d5;
+    color: var(--brown);
+}
+
+#mesej {
+    display: none;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 17px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+#mesej.success {
+    display: block;
+    background: #eaf2e6;
+    color: #355c35;
+    border: 1px solid #c8ddc1;
+}
+
+#mesej.error {
+    display: block;
+    background: #f8e9e6;
+    color: #873d35;
+    border: 1px solid #e9c5bf;
+}
+
+footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 20px;
+}
+
+@media(max-width:650px) {
+    .grid { grid-template-columns: 1fr; }
+    .field.full { grid-column: auto; }
+    .panel { padding: 18px; }
+    .page-heading h1 { font-size: 25px; }
+    .actions { flex-direction: column; }
+    .btn { width: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="brand">Salasilah Keluarga Pok Mark Chendol</div>
+        <div class="header-sub">WARISAN • KETURUNAN • KEKELUARGAAN</div>
+    </div>
+</header>
+
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="salasilah.html">Salasilah</a>
+    <a href="cadangan-ahli.html">Cadangan Ahli</a>
+</nav>
+
+<main>
+
+    <div class="page-heading">
+        <h1>Cadangan Ahli Keluarga</h1>
+        <p>
+            Tambahkan maklumat ahli keluarga dan cadangkan kedudukannya
+            dalam salasilah. Semua cadangan akan disemak oleh pentadbir.
+        </p>
+    </div>
+
+    <div id="mesej"></div>
+
+    <form id="formCadangan">
+
+        <section class="panel">
+            <h2 class="section-title">1. Gambar Profil</h2>
+
+            <div class="photo-area">
+                <div id="photoPlaceholder" class="photo-placeholder">♙</div>
+                <img id="photoPreview" class="photo-preview" alt="Pratonton gambar ahli">
+
+                <div>
+                    <label for="gambar" class="upload-label">
+                        Pilih Gambar
+                    </label>
+                    <input type="file" id="gambar"
+                           accept="image/jpeg,image/png,image/webp">
+                </div>
+
+                <p class="hint">
+                    Format JPG, PNG atau WEBP. Saiz maksimum 5MB.
+                    Gambar akan disimpan dalam storan private.
+                </p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2 class="section-title">2. Maklumat Ahli</h2>
+
+            <div class="grid">
+
+                <div class="field full">
+                    <label for="nama_penuh">
+                        Nama penuh <span class="required">*</span>
+                    </label>
+                    <input id="nama_penuh" required maxlength="200"
+                           placeholder="Masukkan nama penuh">
+                </div>
+
+                <div class="field">
+                    <label for="jantina">Jantina</label>
+                    <select id="jantina">
+                        <option value="">Pilih jantina</option>
+                        <option value="LELAKI">Lelaki</option>
+                        <option value="PEREMPUAN">Perempuan</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="status_hidup">Status kehidupan</label>
+                    <select id="status_hidup">
+                        <option value="HIDUP">Hidup</option>
+                        <option value="MENINGGAL">Meninggal dunia</option>
+                        <option value="TIDAK DIKETAHUI">Tidak diketahui</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="tarikh_lahir">Tarikh lahir</label>
+                    <input type="date" id="tarikh_lahir">
+                </div>
+
+                <div class="field">
+                    <label for="tarikh_meninggal">Tarikh meninggal</label>
+                    <input type="date" id="tarikh_meninggal">
+                </div>
+
+                <div class="field">
+                    <label for="tempat_lahir">Tempat lahir</label>
+                    <input id="tempat_lahir" placeholder="Contoh: Merchang">
+                </div>
+
+                <div class="field">
+                    <label for="tempat_asal">Tempat asal</label>
+                    <input id="tempat_asal" placeholder="Contoh: Marang">
+                </div>
+
+                <div class="field full">
+                    <label for="pekerjaan">Pekerjaan</label>
+                    <input id="pekerjaan" placeholder="Pekerjaan atau bekas pekerjaan">
+                </div>
+
+                <div class="field full">
+                    <label for="catatan">Catatan tambahan</label>
+                    <textarea id="catatan"
+                              placeholder="Maklumat tambahan berkaitan ahli ini"></textarea>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2 class="section-title">3. Hubungan Dalam Salasilah</h2>
+
+            <div class="grid">
+
+                <div class="field full">
+                    <label for="jenisHubungan">Jenis hubungan</label>
+                    <select id="jenisHubungan">
+                        <option value="BELUM_PASTI">Belum pasti / belum diketahui</option>
+                        <option value="ANAK_KEPADA">Anak kepada</option>
+                        <option value="IBU_BAPA_KEPADA">Ibu / bapa kepada</option>
+                        <option value="PASANGAN_KEPADA">Pasangan kepada</option>
+                    </select>
+                </div>
+
+                <div class="field full" id="rujukanWrap" hidden>
+                    <label for="ahliRujukan">Pilih ahli keluarga berkaitan</label>
+                    <select id="ahliRujukan">
+                        <option value="">Memuatkan senarai ahli...</option>
+                    </select>
+                    <span class="hint">
+                        Pilih ahli sedia ada yang mempunyai hubungan dengan
+                        ahli baharu yang dicadangkan.
+                    </span>
+                </div>
+
+                <div class="field full" id="susunanWrap" hidden>
+                    <label for="susunan">Susunan kelahiran</label>
+                    <input type="number" id="susunan" min="1" step="1"
+                           placeholder="Contoh: 1">
+                    <span class="hint">
+                        Isi jika kedudukan anak dalam susunan kelahiran diketahui.
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="relationship-note">
+                <strong>Perhatian:</strong> Hubungan keluarga hanya akan
+                dimasukkan ke dalam salasilah selepas cadangan diluluskan
+                oleh pentadbir.
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2 class="section-title">4. Pengesahan</h2>
+            <p class="hint">
+                Saya mengesahkan bahawa maklumat yang diberikan adalah
+                berdasarkan pengetahuan saya dan akan disemak oleh
+                pentadbir sebelum menjadi rekod rasmi keluarga.
+            </p>
+
+            <div class="actions">
+                <a href="salasilah.html" class="btn btn-secondary">Kembali</a>
+                <button type="submit" id="btnHantar" class="btn btn-primary">
+                    Hantar Cadangan
+                </button>
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<footer>
+    Salasilah Keluarga Pok Mark Chendol
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=4"></script>
+<script src="./js/auth.js?v=4"></script>
+<script src="./js/auth-guard.js?v=4"></script>
+<script src="./js/cadangan-ahli.js?v=1"></script>
+
+</body>
+</html>
