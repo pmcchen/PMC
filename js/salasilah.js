@@ -25,6 +25,23 @@
     return ahliSemua.find(a => a.id === id);
   }
 
+  // Cari semua pasangan seseorang.
+  function pasanganBagi(id) {
+    return hubunganPasangan.filter(r =>
+      r.pasangan_1 === id || r.pasangan_2 === id
+    ).map(r => {
+      const idPasangan = r.pasangan_1 === id
+        ? r.pasangan_2
+        : r.pasangan_1;
+
+      return {
+        ahli: cariAhli(idPasangan),
+        status: r.status_hubungan,
+        tarikh: r.tarikh_perkahwinan
+      };
+    }).filter(r => r.ahli);
+  }
+
   function kadAhli(ahli) {
     const kad = elemen("div", "person");
     kad.dataset.nama = ahli.nama_penuh.toLowerCase();
@@ -50,6 +67,7 @@
     return kad;
   }
 
+  // Paparkan maklumat ahli dan pasangan apabila kad diklik.
   function bukaProfil(ahli) {
     maklumat.replaceChildren();
 
@@ -60,6 +78,41 @@
       elemen("p", "", "Status: " + (ahli.status_hidup || "-")),
       elemen("p", "", "Tempat asal: " + (ahli.tempat_asal || "-"))
     );
+
+    const senaraiPasangan = pasanganBagi(ahli.id);
+
+    if (senaraiPasangan.length > 0) {
+      maklumat.append(
+        elemen("h3", "", "Maklumat Pasangan")
+      );
+
+      senaraiPasangan.forEach(rekod => {
+        const bahagian = elemen("div", "");
+        bahagian.style.padding = "10px 0";
+        bahagian.style.borderTop = "1px solid #d9c7a6";
+
+        bahagian.append(
+          elemen("p", "", "♥ " + rekod.ahli.nama_penuh),
+          elemen(
+            "p",
+            "",
+            "Status hubungan: " + (rekod.status || "-")
+          )
+        );
+
+        if (rekod.tarikh) {
+          bahagian.append(
+            elemen("p", "", "Tarikh perkahwinan: " + rekod.tarikh)
+          );
+        }
+
+        maklumat.append(bahagian);
+      });
+    } else {
+      maklumat.append(
+        elemen("p", "", "Maklumat pasangan belum direkodkan.")
+      );
+    }
 
     modal.style.display = "flex";
   }
@@ -72,101 +125,84 @@
     if (e.target === modal) modal.style.display = "none";
   });
 
-  // Cari pasangan seseorang
-  function pasanganBagi(id) {
-    const rekod = hubunganPasangan.find(r =>
-      r.pasangan_1 === id || r.pasangan_2 === id
-    );
-
-    if (!rekod) return null;
-
-    return rekod.pasangan_1 === id
-      ? rekod.pasangan_2
-      : rekod.pasangan_1;
-  }
-
-  // Kumpulkan ibu bapa bagi setiap anak.
-  // Dua rekod ibu dan bapa tidak akan menggandakan anak.
+  // Kumpulkan hanya hubungan ibu bapa-anak BIOLOGI.
   function kumpulKeluarga() {
     const keluarga = new Map();
 
-    hubunganAnak.forEach(h => {
-      if (!keluarga.has(h.id_anak)) {
-        keluarga.set(h.id_anak, {
-          idAnak: h.id_anak,
-          ibuBapa: [],
-          susunan: h.susunan_kelahiran
-        });
-      }
+    hubunganAnak
+      .filter(h => h.jenis_hubungan === "BIOLOGI")
+      .forEach(h => {
+        if (!keluarga.has(h.id_anak)) {
+          keluarga.set(h.id_anak, {
+            idAnak: h.id_anak,
+            ibuBapa: [],
+            susunan: h.susunan_kelahiran
+          });
+        }
 
-      const rekod = keluarga.get(h.id_anak);
+        const rekod = keluarga.get(h.id_anak);
 
-      if (!rekod.ibuBapa.includes(h.id_ibubapa)) {
-        rekod.ibuBapa.push(h.id_ibubapa);
-      }
+        if (!rekod.ibuBapa.includes(h.id_ibubapa)) {
+          rekod.ibuBapa.push(h.id_ibubapa);
+        }
 
-      if (
-        rekod.susunan == null &&
-        h.susunan_kelahiran != null
-      ) {
-        rekod.susunan = h.susunan_kelahiran;
-      }
-    });
+        if (
+          rekod.susunan == null &&
+          h.susunan_kelahiran != null
+        ) {
+          rekod.susunan = h.susunan_kelahiran;
+        }
+      });
 
     return [...keluarga.values()];
   }
 
-  // Bentuk pasangan ibu bapa yang sama untuk setiap anak.
+  // Bentuk kunci berdasarkan ibu bapa BIOLOGI yang benar-benar direkodkan.
+  // Tidak lagi menambah pasangan secara automatik.
   function kunciIbuBapa(ids) {
-    const semua = [...ids];
-
-    // Jika hanya satu hubungan ibu/bapa direkodkan,
-    // cuba dapatkan pasangannya daripada jadual pasangan.
-    if (semua.length === 1) {
-      const pasangan = pasanganBagi(semua[0]);
-
-      if (pasangan) semua.push(pasangan);
-    }
-
-    return [...new Set(semua)].sort();
+    return [...new Set(ids)].sort();
   }
 
-  // Paparkan generasi pertama: ahli yang tiada rekod ibu bapa.
+  // Paparkan generasi pertama: datuk dan nenek.
+  function paparGenerasiPertama(ahliAkar, seksyen) {
+    const sudahPapar = new Set();
 
-function paparGenerasiPertama(ahliAkar, seksyen) {
-  const sudahPapar = new Set();
+    ahliAkar.forEach(ahli => {
+      if (sudahPapar.has(ahli.id)) return;
 
-  ahliAkar.forEach(ahli => {
-    if (sudahPapar.has(ahli.id)) return;
+      const kumpulan = elemen("div", "family-group");
+      const barisPasangan = elemen("div", "parents-row");
 
-    const kumpulan = elemen("div", "family-group");
-    const barisPasangan = elemen("div", "parents-row");
+      const pasangan = pasanganBagi(ahli.id);
 
-    const pasangan = pasanganBagi(ahli.id);
+      barisPasangan.append(kadAhli(ahli));
+      sudahPapar.add(ahli.id);
 
-    barisPasangan.append(kadAhli(ahli));
-    sudahPapar.add(ahli.id);
+      if (pasangan.length > 0) {
+        pasangan.forEach(rekod => {
+          if (sudahPapar.has(rekod.ahli.id)) return;
 
-    if (pasangan && !sudahPapar.has(pasangan)) {
-      const dataPasangan = cariAhli(pasangan);
+          barisPasangan.append(
+            elemen("span", "spouse-label", "♥")
+          );
 
-      if (dataPasangan) {
-        barisPasangan.append(
-          elemen("span", "spouse-label", "♥")
-        );
-
-        barisPasangan.append(kadAhli(dataPasangan));
-        sudahPapar.add(pasangan);
+          barisPasangan.append(kadAhli(rekod.ahli));
+          sudahPapar.add(rekod.ahli.id);
+        });
       }
-    }
 
-    kumpulan.append(barisPasangan);
-    seksyen.append(kumpulan);
-  });
-}
+      kumpulan.append(barisPasangan);
+      seksyen.append(kumpulan);
+    });
+  }
 
-  // Paparkan generasi anak. Set ID memastikan setiap anak sekali sahaja.
-  function paparGenerasiAnak(nomborGenerasi, ahliGenerasi, semuaKeluarga, seksyen) {
+  // Paparkan hanya anak yang mempunyai hubungan BIOLOGI.
+  function paparGenerasiAnak(
+    nomborGenerasi,
+    ahliGenerasi,
+    semuaKeluarga,
+    seksyen
+  ) {
     const idGenerasi = new Set(ahliGenerasi.map(a => a.id));
     const kumpulanPaparan = new Map();
 
@@ -174,6 +210,9 @@ function paparGenerasiPertama(ahliAkar, seksyen) {
       if (!idGenerasi.has(k.idAnak)) return;
 
       const idsIbuBapa = kunciIbuBapa(k.ibuBapa);
+
+      if (idsIbuBapa.length === 0) return;
+
       const kunci = idsIbuBapa.join("|");
 
       if (!kumpulanPaparan.has(kunci)) {
@@ -224,26 +263,42 @@ function paparGenerasiPertama(ahliAkar, seksyen) {
         }
       });
 
-      keluarga.append(bekasAnak);
-      seksyen.append(keluarga);
+      if (bekasAnak.children.length > 0) {
+        keluarga.append(bekasAnak);
+        seksyen.append(keluarga);
+      }
     });
 
-    // Ahli yang tiada hubungan ibu bapa tetap dipaparkan sekali.
-    ahliGenerasi.forEach(ahli => {
-      if (sudahPapar.has(ahli.id)) return;
+    // Jangan paparkan ahli tanpa hubungan BIOLOGI sebagai keturunan.
+    const belumAdaHubungan = ahliGenerasi.filter(
+      ahli => !sudahPapar.has(ahli.id)
+    );
 
-      const keluarga = elemen("div", "family-group");
-      keluarga.append(kadAhli(ahli));
-      seksyen.append(keluarga);
-      sudahPapar.add(ahli.id);
-    });
+    if (belumAdaHubungan.length > 0) {
+      const nota = elemen(
+        "p",
+        "",
+        belumAdaHubungan.length +
+        " rekod ahli tidak dipaparkan kerana hubungan BIOLOGI belum direkodkan."
+      );
+
+      nota.style.textAlign = "center";
+      nota.style.color = "#887b6d";
+      nota.style.fontSize = "12px";
+
+      seksyen.append(nota);
+    }
   }
 
   function binaSalasilah() {
     paparan.replaceChildren();
 
+    const hubunganBiologi = hubunganAnak.filter(
+      h => h.jenis_hubungan === "BIOLOGI"
+    );
+
     const idAdaIbuBapa = new Set(
-      hubunganAnak.map(h => h.id_anak)
+      hubunganBiologi.map(h => h.id_anak)
     );
 
     const generasi = [...new Set(
@@ -302,10 +357,10 @@ function paparGenerasiPertama(ahliAkar, seksyen) {
           .order("nama_penuh", { ascending: true }),
 
         db.from("hubungan_ibubapa_anak")
-          .select("id_ibubapa,id_anak,susunan_kelahiran"),
+          .select("id_ibubapa,id_anak,jenis_hubungan,susunan_kelahiran"),
 
         db.from("hubungan_pasangan")
-          .select("pasangan_1,pasangan_2")
+          .select("pasangan_1,pasangan_2,status_hubungan,tarikh_perkahwinan")
       ]);
 
       if (ahli.error) throw ahli.error;
