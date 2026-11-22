@@ -5,158 +5,588 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | Salasilah Keluarga Pok Mark Chendol</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --coklat: #493525;
+      --coklat-gelap: #302319;
+      --coklat-muda: #806039;
+      --emas: #c5a46a;
+      --emas-cerah: #e4ce9f;
+      --krim: #f5efe2;
+      --putih: #fffaf0;
+      --hijau: #344b3b;
+      --teks: #493525;
+      --muted: #8b7658;
+    }
+
     body {
       margin: 0;
-      font-family: Georgia, serif;
-      background: #f2ecdf;
-      color: #493525;
+      font-family: 'Inter', sans-serif;
+      background:
+        radial-gradient(ellipse at top, rgba(197,164,106,.13), transparent 55%),
+        #f2ecdf;
+      color: var(--teks);
     }
+
+    /* HEADER KEKAL KETIKA SKROL */
     header {
-      background: #493525;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background:
+        linear-gradient(115deg, rgba(48,35,25,.98), rgba(73,53,37,.98));
       color: #fff8e9;
-      padding: 20px 5%;
+      padding: 15px 5%;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 15px;
+      border-bottom: 3px solid var(--emas);
+      box-shadow: 0 5px 18px rgba(42,29,18,.22);
     }
-    header h1 { font-size: 21px; margin: 0; }
-    header p { margin: 5px 0 0; color: #e2c99c; font-size: 13px; }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .brand-seal {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--emas);
+      border-radius: 50%;
+      color: var(--emas-cerah);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 25px;
+      font-weight: 700;
+      background: rgba(197,164,106,.10);
+      box-shadow: inset 0 0 0 4px rgba(197,164,106,.08);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 19px;
+      letter-spacing: 1.2px;
+      margin: 0;
+      color: #fff8e9;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      color: var(--emas-cerah);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      letter-spacing: 1px;
+    }
+
     button {
-      border: 1px solid #d5bd8e;
-      background: #806039;
+      border: 1px solid var(--emas);
+      background: var(--coklat-muda);
       color: white;
       border-radius: 7px;
-      padding: 10px 15px;
+      padding: 10px 16px;
       cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: .2s;
     }
-    main { max-width: 1150px; margin: auto; padding: 30px 20px; }
-    .welcome {
-      background: #fffaf0;
-      border: 1px solid #dfcfad;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 22px;
+
+    button:hover {
+      background: #967347;
+      transform: translateY(-1px);
     }
-    .welcome h2 { margin: 0 0 8px; }
-    .muted { color: #8b7658; }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 32px 22px 55px;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(120deg, rgba(48,35,25,.97), rgba(73,53,37,.94));
+      border: 1px solid var(--emas);
+      border-radius: 15px;
+      padding: 36px;
+      margin-bottom: 25px;
+      color: #fff8e9;
+      box-shadow: 0 8px 25px rgba(73,53,37,.13);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border: 1px solid rgba(228,206,159,.22);
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    .hero::before {
+      right: -65px;
+      top: -100px;
+      box-shadow:
+        0 0 0 13px rgba(228,206,159,.04),
+        0 0 0 27px rgba(228,206,159,.04);
+    }
+
+    .hero::after {
+      right: 55px;
+      bottom: -155px;
+      width: 150px;
+      height: 150px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 750px;
+    }
+
+    .hero-label {
+      display: inline-block;
+      color: var(--emas-cerah);
+      border: 1px solid rgba(228,206,159,.5);
+      padding: 6px 13px;
+      border-radius: 30px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 17px;
+    }
+
+    .hero h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(27px, 4vw, 40px);
+      line-height: 1.2;
+      margin: 0 0 12px;
+      font-weight: 600;
+    }
+
+    .hero h2 span {
+      color: var(--emas-cerah);
+    }
+
+    .hero p {
+      color: #e6d9c2;
+      line-height: 1.8;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .hero-divider {
+      width: 85px;
+      height: 2px;
+      background: var(--emas);
+      margin: 20px 0;
+    }
+
+    /* STATISTIK */
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 32px 0 16px;
+    }
+
+    .section-heading::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #d9c8a8;
+    }
+
+    .section-heading h3 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 21px;
+      color: var(--coklat);
+    }
+
     .stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 17px;
+      margin-bottom: 28px;
     }
-    .stat, .section {
-      background: #fffaf0;
+
+    .stat {
+      background: var(--putih);
       border: 1px solid #dfcfad;
       border-radius: 12px;
-      padding: 20px;
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(73,53,37,.05);
     }
-    .stat span { color: #8b7658; font-size: 14px; }
+
+    .stat::after {
+      content: "";
+      position: absolute;
+      right: -22px;
+      bottom: -35px;
+      width: 90px;
+      height: 90px;
+      border: 1px solid rgba(197,164,106,.3);
+      transform: rotate(45deg);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
     .stat strong {
       display: block;
-      font-size: 30px;
+      font-family: 'Playfair Display', serif;
+      font-size: 35px;
       margin-top: 10px;
-      color: #79552e;
+      color: var(--coklat-muda);
     }
-    .section h3 { margin-top: 0; }
-    .member {
+
+    /* MENU */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 18px;
+    }
+
+    .menu-card {
       display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 13px 0;
-      border-bottom: 1px solid #eadfc9;
-    }
-    .member:last-child { border-bottom: 0; }
-    .member small { color: #8b7658; }
-    .tag {
-      font-size: 12px;
-      background: #eee2c9;
-      color: #76552f;
-      padding: 5px 9px;
-      border-radius: 20px;
-      white-space: nowrap;
-      height: fit-content;
-    }
-    .menu {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 22px;
-    }
-    .menu a {
+      align-items: center;
+      gap: 15px;
+      min-height: 95px;
+      padding: 18px;
       text-decoration: none;
-      color: #684a2c;
-      background: #e8dcc5;
-      border: 1px solid #d5c19b;
-      border-radius: 8px;
-      padding: 12px 16px;
+      color: var(--coklat);
+      background: var(--putih);
+      border: 1px solid #dfcfad;
+      border-radius: 11px;
+      transition: .22s ease;
+      box-shadow: 0 3px 10px rgba(73,53,37,.04);
     }
-    #mesej { color: #8b7658; }
+
+    .menu-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--emas);
+      background: #fffdf7;
+      box-shadow: 0 8px 18px rgba(73,53,37,.10);
+    }
+
+    .menu-icon {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #eee2c9;
+      border: 1px solid #dfcda8;
+      color: var(--coklat-muda);
+      font-size: 23px;
+    }
+
+    .menu-card h4 {
+      margin: 0 0 5px;
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .menu-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* KOTAK MAKLUMAT */
+    .info-panel {
+      margin-top: 30px;
+      padding: 23px;
+      background: #e9e0cf;
+      border-left: 4px solid var(--hijau);
+      border-radius: 8px;
+    }
+
+    .info-panel h3 {
+      font-family: 'Playfair Display', serif;
+      margin: 0 0 8px;
+      color: var(--coklat);
+      font-size: 19px;
+    }
+
+    .info-panel p {
+      margin: 0;
+      color: #76634b;
+      line-height: 1.8;
+      font-size: 13px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px 15px;
+      color: var(--muted);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      border-top: 1px solid #dfcfad;
+      margin-top: 35px;
+    }
+
+    /* Kekalkan elemen untuk dashboard.js tanpa memaparkan senarai */
+    .data-senyap {
+      display: none !important;
+    }
+
+    @media (max-width: 850px) {
+      .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     @media (max-width: 650px) {
-      header { align-items: flex-start; }
-      header h1 { font-size: 17px; }
-      .stats { grid-template-columns: 1fr; }
-      .member { align-items: flex-start; }
+      header {
+        padding: 12px 15px;
+      }
+
+      .brand-seal {
+        width: 40px;
+        height: 40px;
+        font-size: 21px;
+      }
+
+      header h1 {
+        font-size: 13px;
+        letter-spacing: .5px;
+      }
+
+      header p {
+        font-size: 14px;
+      }
+
+      header button {
+        padding: 9px 11px;
+        font-size: 11px;
+      }
+
+      main {
+        padding: 20px 14px 40px;
+      }
+
+      .hero {
+        padding: 26px 21px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+        gap: 11px;
+      }
+
+      .stat {
+        padding: 17px 19px;
+      }
+
+      .stat strong {
+        font-size: 30px;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 11px;
+      }
+
+      .menu-card {
+        min-height: 80px;
+        padding: 14px;
+      }
+
+      .section-heading h3 {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
+
 <body>
+
   <header>
-    <div>
-      <h1>SALASILAH KELUARGA POK MARK CHENDOL</h1>
-      <p>Arkib dan Warisan Keluarga</p>
+    <div class="header-brand">
+      <div class="brand-seal">م</div>
+      <div>
+        <h1>SALASILAH KELUARGA POK MARK CHENDOL</h1>
+        <p>Arkib dan Warisan Keluarga</p>
+      </div>
     </div>
+
     <button id="btnKeluar">Log Keluar</button>
   </header>
 
   <main>
-    <section class="welcome">
-      <h2>Assalamualaikum, <span id="namaPengguna">Ahli Keluarga</span></h2>
-      <div class="muted">
-        Selamat datang ke portal salasilah keluarga kita.
+
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-label">Warisan • Keturunan • Kekeluargaan</div>
+
+        <h2>
+          Assalamualaikum,<br>
+          <span id="namaPengguna">Ahli Keluarga</span>
+        </h2>
+
+        <div class="hero-divider"></div>
+
+        <p>
+          Selamat datang ke arkib warisan keluarga kita.
+          Bersama-sama kita memelihara salasilah, mengenang
+          asal usul dan mewariskan sejarah keluarga kepada
+          generasi yang akan datang.
+        </p>
+
+        <p id="perananPengguna" style="margin-top:12px;"></p>
       </div>
-      <p class="muted" id="perananPengguna"></p>
     </section>
+
+    <div class="section-heading">
+      <h3>Ringkasan Keluarga</h3>
+    </div>
 
     <section class="stats">
       <div class="stat">
         <span>Jumlah Ahli Keluarga</span>
         <strong id="jumlahAhli">—</strong>
       </div>
+
       <div class="stat">
         <span>Jumlah Generasi</span>
         <strong id="jumlahGenerasi">—</strong>
       </div>
+
       <div class="stat">
         <span>Ahli Dipaparkan</span>
         <strong id="jumlahDipaparkan">—</strong>
       </div>
     </section>
 
-    <section class="section">
-      <h3>Senarai Ahli Keluarga</h3>
-      <p class="muted">Rekod keluarga yang telah disimpan dalam sistem.</p>
-      <div id="senaraiAhli">Sedang memuatkan data...</div>
-      <p id="mesej"></p>
+    <div class="section-heading">
+      <h3>Menu Utama</h3>
+    </div>
+
+    <nav class="menu-grid">
+
+      <a class="menu-card" href="salasilah.html">
+        <div class="menu-icon">🌳</div>
+        <div>
+          <h4>Pohon Salasilah</h4>
+          <p>Lihat susur galur dan keturunan keluarga</p>
+        </div>
+      </a>
+
+      <a class="menu-card" href="ahli-keluarga.html">
+        <div class="menu-icon">👨‍👩‍👧‍👦</div>
+        <div>
+          <h4>Ahli Keluarga</h4>
+          <p>Kenali ahli dan maklumat keluarga</p>
+        </div>
+      </a>
+
+      <a class="menu-card" href="sejarah.html">
+        <div class="menu-icon">📜</div>
+        <div>
+          <h4>Sejarah Keluarga</h4>
+          <p>Catatan asal usul dan kisah terdahulu</p>
+        </div>
+      </a>
+
+      <a class="menu-card" href="galeri.html">
+        <div class="menu-icon">🖼️</div>
+        <div>
+          <h4>Galeri Keluarga</h4>
+          <p>Himpunan gambar dan kenangan keluarga</p>
+        </div>
+      </a>
+
+      <a class="menu-card" href="cadangan.html">
+        <div class="menu-icon">✍️</div>
+        <div>
+          <h4>Cadangan Maklumat</h4>
+          <p>Sumbangkan maklumat dan pembetulan rekod</p>
+        </div>
+      </a>
+
+      <a class="menu-card" href="pengurusan-ahli.html">
+        <div class="menu-icon">👤</div>
+        <div>
+          <h4>Pengurusan Ahli</h4>
+          <p>Pengurusan rekod ahli keluarga</p>
+        </div>
+      </a>
+
+      <a class="menu-card" href="pengurusan-hubungan.html">
+        <div class="menu-icon">🔗</div>
+        <div>
+          <h4>Pengurusan Hubungan</h4>
+          <p>Hubungan ibu bapa, anak dan pasangan</p>
+        </div>
+      </a>
+
+      <a class="menu-card" href="admin.html">
+        <div class="menu-icon">⚜️</div>
+        <div>
+          <h4>Pentadbiran</h4>
+          <p>Kelulusan dan kawalan sistem</p>
+        </div>
+      </a>
+
+    </nav>
+
+    <section class="info-panel">
+      <h3>Memelihara Warisan, Menyatukan Keturunan</h3>
+      <p>
+        Salasilah ini merupakan khazanah bersama keluarga.
+        Setiap ahli boleh membantu melengkapkan maklumat,
+        berkongsi gambar dan menyumbangkan sejarah agar
+        warisan keluarga terus dikenali oleh generasi seterusnya.
+      </p>
     </section>
 
-    <nav class="menu">
-      <a href="salasilah.html">Pohon Salasilah</a>
-      <a href="ahli-keluarga.html">Ahli Keluarga</a>
-      <a href="sejarah.html">Sejarah Keluarga</a>
-      <a href="galeri.html">Galeri Keluarga</a>
-      <a href="cadangan.html">Cadangan Maklumat</a>
-    </nav>
+    <footer>
+      SALASILAH KELUARGA POK MARK CHENDOL
+      <br>
+      <span style="font-size:14px;">Warisan keluarga, amanah generasi</span>
+    </footer>
+
+    <!-- Elemen dikekalkan untuk keserasian dashboard.js -->
+    <div class="data-senyap">
+      <div id="senaraiAhli"></div>
+      <p id="mesej"></p>
+    </div>
+
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/supabase-config.js?v=3"></script>
+  <script src="./js/auth.js?v=3"></script>
+  <script src="./js/auth-guard.js?v=3"></script>
+  <script src="./js/dashboard.js?v=4"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/supabase-config.js?v=3"></script>
-<script src="./js/auth.js?v=3"></script>
-<script src="./js/auth-guard.js?v=3"></script>
-<script src="./js/dashboard.js?v=4"></script>
 </body>
 </html>
