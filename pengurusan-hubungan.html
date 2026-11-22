@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengurusan Hubungan Keluarga</title>
+
+<style>
+:root {
+    --coklat:#493522;
+    --emas:#b68b45;
+    --krim:#f7f1e5;
+    --putih:#fffdf8;
+    --merah:#a83d32;
+    --hijau:#287a45;
+}
+
+* { box-sizing:border-box; }
+
+body {
+    margin:0;
+    padding:24px;
+    background:var(--krim);
+    color:var(--coklat);
+    font-family:Georgia,serif;
+}
+
+.container {
+    max-width:1200px;
+    margin:auto;
+}
+
+header {
+    background:var(--coklat);
+    color:white;
+    padding:25px;
+    border-radius:14px;
+    margin-bottom:22px;
+}
+
+header h1 {
+    margin:0 0 8px;
+    font-size:25px;
+}
+
+header p {
+    margin:0;
+    color:#ead9b9;
+}
+
+.panel {
+    background:var(--putih);
+    border:1px solid #e4d5bb;
+    border-radius:13px;
+    padding:22px;
+    margin-bottom:22px;
+    box-shadow:0 4px 15px #4935220d;
+}
+
+.panel h2 {
+    margin-top:0;
+    font-size:20px;
+}
+
+.tabs {
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:18px;
+}
+
+button {
+    cursor:pointer;
+    border:0;
+    border-radius:7px;
+    padding:11px 16px;
+    font-weight:bold;
+    font-family:inherit;
+}
+
+.btn-utama {
+    background:var(--coklat);
+    color:white;
+}
+
+.btn-emas {
+    background:var(--emas);
+    color:white;
+}
+
+.btn-batal {
+    background:#e8dfd0;
+    color:var(--coklat);
+}
+
+.btn-padam {
+    background:#a83d32;
+    color:white;
+}
+
+.btn-edit {
+    background:#8b6937;
+    color:white;
+}
+
+.tab-aktif {
+    background:var(--emas);
+    color:white;
+}
+
+.tab-biasa {
+    background:#e8dfd0;
+    color:var(--coklat);
+}
+
+label {
+    display:block;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+input, select, textarea {
+    width:100%;
+    padding:11px;
+    border:1px solid #d8c8aa;
+    border-radius:7px;
+    background:white;
+    color:var(--coklat);
+    font-family:inherit;
+    margin-bottom:15px;
+}
+
+textarea {
+    min-height:75px;
+    resize:vertical;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+}
+
+.table-wrap {
+    overflow-x:auto;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    min-width:650px;
+}
+
+th,td {
+    padding:12px;
+    text-align:left;
+    border-bottom:1px solid #eadfcd;
+}
+
+th {
+    background:#efe4d1;
+}
+
+td button {
+    margin:2px;
+    padding:8px 11px;
+}
+
+#mesej {
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:7px;
+    background:#f1e8d8;
+}
+
+.hidden {
+    display:none !important;
+}
+
+@media(max-width:650px) {
+    body { padding:12px; }
+    .grid { grid-template-columns:1fr; }
+    .panel { padding:15px; }
+    header h1 { font-size:21px; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <h1>Salasilah Keluarga Pok Mark Chendol</h1>
+    <p>Pengurusan Hubungan Keluarga · Panel Pentadbir</p>
+</header>
+
+<div class="panel">
+    <div class="tabs">
+        <button type="button" id="tabIbubapa" class="tab-aktif">
+            Ibu Bapa & Anak
+        </button>
+
+        <button type="button" id="tabPasangan" class="tab-biasa">
+            Hubungan Pasangan
+        </button>
+
+        <button type="button" class="btn-batal"
+            onclick="location.href='dashboard.html'">
+            Dashboard
+        </button>
+    </div>
+
+    <div id="mesej">Memeriksa akses pentadbir...</div>
+</div>
+
+<!-- HUBUNGAN IBU BAPA DAN ANAK -->
+<section id="bahagianIbubapa">
+
+    <div class="panel">
+        <h2>Tambah Hubungan Ibu Bapa dan Anak</h2>
+
+        <form id="formIbubapa">
+
+            <input type="hidden" id="ibubapaId">
+
+            <div class="grid">
+                <div>
+                    <label for="pilihIbubapa">Nama Ibu / Bapa</label>
+                    <select id="pilihIbubapa" required>
+                        <option value="">Pilih ibu atau bapa</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="pilihAnak">Nama Anak</label>
+                    <select id="pilihAnak" required>
+                        <option value="">Pilih anak</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <label for="jenisHubungan">Jenis Hubungan</label>
+                    <select id="jenisHubungan">
+                        <option value="BIOLOGI">Biologi</option>
+                        <option value="ANGKAT">Anak Angkat</option>
+                        <option value="TIRI">Anak Tiri</option>
+                        <option value="LAIN">Lain-lain</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="susunanKelahiran">Susunan Kelahiran</label>
+                    <input type="number" id="susunanKelahiran"
+                        min="1" placeholder="Contoh: 1">
+                </div>
+            </div>
+
+            <label for="catatanIbubapa">Catatan</label>
+            <textarea id="catatanIbubapa"></textarea>
+
+            <button type="submit" class="btn-utama" id="btnSimpanIbubapa">
+                Simpan Hubungan
+            </button>
+
+            <button type="button" class="btn-batal"
+                id="btnBatalIbubapa">
+                Batal
+            </button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <h2>Senarai Hubungan Ibu Bapa dan Anak</h2>
+
+        <input type="search" id="carianIbubapa"
+            placeholder="Cari nama ibu bapa atau anak...">
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ibu / Bapa</th>
+                        <th>Anak</th>
+                        <th>Jenis</th>
+                        <th>Susunan</th>
+                        <th>Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody id="senaraiIbubapa"></tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+<!-- HUBUNGAN PASANGAN -->
+<section id="bahagianPasangan" class="hidden">
+
+    <div class="panel">
+        <h2>Tambah Hubungan Pasangan</h2>
+
+        <form id="formPasangan">
+
+            <input type="hidden" id="pasanganId">
+
+            <div class="grid">
+                <div>
+                    <label for="pilihPasangan1">Pasangan Pertama</label>
+                    <select id="pilihPasangan1" required>
+                        <option value="">Pilih ahli keluarga</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="pilihPasangan2">Pasangan Kedua</label>
+                    <select id="pilihPasangan2" required>
+                        <option value="">Pilih ahli keluarga</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <label for="statusHubungan">Status Hubungan</label>
+                    <select id="statusHubungan">
+                        <option value="BERKAHWIN">Berkahwin</option>
+                        <option value="BERPISAH">Berpisah</option>
+                        <option value="MENINGGAL">Meninggal</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="tarikhPerkahwinan">Tarikh Perkahwinan</label>
+                    <input type="date" id="tarikhPerkahwinan">
+                </div>
+            </div>
+
+            <label for="tarikhPerpisahan">Tarikh Perpisahan</label>
+            <input type="date" id="tarikhPerpisahan">
+
+            <label for="catatanPasangan">Catatan</label>
+            <textarea id="catatanPasangan"></textarea>
+
+            <button type="submit" class="btn-utama" id="btnSimpanPasangan">
+                Simpan Pasangan
+            </button>
+
+            <button type="button" class="btn-batal"
+                id="btnBatalPasangan">
+                Batal
+            </button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <h2>Senarai Hubungan Pasangan</h2>
+
+        <input type="search" id="carianPasangan"
+            placeholder="Cari nama pasangan...">
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pasangan 1</th>
+                        <th>Pasangan 2</th>
+                        <th>Status</th>
+                        <th>Tarikh Kahwin</th>
+                        <th>Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody id="senaraiPasangan"></tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=4"></script>
+<script src="./js/auth.js?v=4"></script>
+<script src="./js/auth-guard.js?v=4"></script>
+<script src="./js/pengurusan-hubungan.js?v=1"></script>
+
+</body>
+</html>
