@@ -256,6 +256,93 @@
         return data?.signedUrl || null;
     }
 
+
+    let previewObjectUrl = null;
+
+    function paparPratontonGambar() {
+        const input = el("editGambar");
+        const preview = el("previewEditGambar");
+        const fail = input.files?.[0];
+
+        if (previewObjectUrl) {
+            URL.revokeObjectURL(previewObjectUrl);
+            previewObjectUrl = null;
+        }
+
+        if (!fail) {
+            preview.src = "";
+            preview.style.display = "none";
+            return;
+        }
+
+        const jenisDibenarkan = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!jenisDibenarkan.includes(fail.type)) {
+            alert("Sila pilih gambar JPG, PNG atau WEBP sahaja.");
+            input.value = "";
+            preview.src = "";
+            preview.style.display = "none";
+            return;
+        }
+
+        if (fail.size > 5 * 1024 * 1024) {
+            alert("Saiz gambar melebihi 5MB.");
+            input.value = "";
+            preview.src = "";
+            preview.style.display = "none";
+            return;
+        }
+
+        previewObjectUrl = URL.createObjectURL(fail);
+        preview.src = previewObjectUrl;
+        preview.style.display = "block";
+    }
+
+    async function muatNaikGambar(fail, idAhli) {
+        if (!fail) return null;
+
+        const jenisFail = {
+            "image/jpeg": "jpg",
+            "image/png": "png",
+            "image/webp": "webp"
+        };
+
+        const sambungan = jenisFail[fail.type];
+
+        if (!sambungan) {
+            throw new Error("Format gambar tidak disokong.");
+        }
+
+        if (fail.size > 5 * 1024 * 1024) {
+            throw new Error("Saiz gambar tidak boleh melebihi 5MB.");
+        }
+
+        const namaFail =
+            `${penggunaSemasa.id}/${idAhli}/` +
+            `${Date.now()}-${Math.random().toString(36).slice(2)}.${sambungan}`;
+
+        const { data, error } = await db.storage
+            .from("gambar-profil")
+            .upload(namaFail, fail, {
+                contentType: fail.type,
+                upsert: false
+            });
+
+        if (error) {
+            throw new Error("Gagal memuat naik gambar: " + error.message);
+        }
+
+        return data.path;
+    }
+
+
+
+
+    
     async function paparProfil(id) {
         const ahli = semuaAhli.find(a => a.id === id);
         if (!ahli) return;
@@ -365,6 +452,15 @@
         el("editTempatAsal").value = ahli.tempat_asal || "";
         el("editPekerjaan").value = ahli.pekerjaan || "";
         el("editCatatan").value = ahli.catatan || "";
+        
+        el("editGambar").value = "";
+        el("previewEditGambar").src = "";
+        el("previewEditGambar").style.display = "none";
+
+        if (previewObjectUrl) {
+            URL.revokeObjectURL(previewObjectUrl);
+            previewObjectUrl = null;
+        }
 
         el("panelEdit").hidden = false;
 
@@ -437,18 +533,67 @@
         butang.disabled = true;
         butang.textContent = "Menyimpan...";
 
-        const { error } = await db
-            .from("ahli_keluarga")
-            .update(perubahan)
-            .eq("id", id);
 
-        butang.disabled = false;
-        butang.textContent = "Simpan Perubahan";
+        let gambarBaharu = null;
 
-        if (error) {
+        try {
+            const failGambar = el("editGambar").files?.[0];
+
+            if (failGambar) {
+                butang.textContent = "Memuat naik gambar...";
+
+                gambarBaharu = await muatNaikGambar(
+                    failGambar,
+                    id
+                );
+
+                perubahan.gambar_url = gambarBaharu;
+            }
+
+            butang.textContent = "Menyimpan maklumat...";
+
+            const { error } = await db
+                .from("ahli_keluarga")
+                .update(perubahan)
+                .eq("id", id);
+
+            if (error) {
+                // Padam gambar baharu jika kemas kini database gagal
+                if (gambarBaharu) {
+                    await db.storage
+                        .from("gambar-profil")
+                        .remove([gambarBaharu]);
+                }
+
+                throw error;
+            }
+
+            el("panelEdit").hidden = true;
+
+            el("editGambar").value = "";
+
+            if (previewObjectUrl) {
+                URL.revokeObjectURL(previewObjectUrl);
+                previewObjectUrl = null;
+            }
+
+            await muatAhli();
+
+            const ahliTerkini = semuaAhli.find(a => a.id === id);
+
+            if (ahliTerkini) {
+                paparProfil(id);
+            }
+
+            alert("Maklumat dan gambar ahli berjaya dikemas kini.");
+
+        } catch (error) {
             console.error(error);
             alert("Gagal mengemas kini: " + error.message);
-            return;
+
+        } finally {
+            butang.disabled = false;
+            butang.textContent = "Simpan Perubahan";
         }
 
         el("panelEdit").hidden = true;
@@ -516,7 +661,10 @@
             el("btnMuatSemula").addEventListener("click", muatAhli);
 
             el("formEdit").addEventListener("submit", simpanEdit);
-
+            el("editGambar").addEventListener(
+    "change",
+    paparPratontonGambar
+);
             el("btnBatalEdit").addEventListener("click", () => {
                 el("panelEdit").hidden = true;
             });
