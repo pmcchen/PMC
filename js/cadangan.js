@@ -41,20 +41,30 @@
         return elemen ? elemen.value.trim() : "";
     }
 
-    function kemasKiniJenisHubungan() {
-        const jenis = jenisHubungan.value;
-        const perluRujukan = jenis !== "BELUM_PASTI";
-        const perluRujukanKedua = jenis === "ANAK_KEPADA";
 
-        rujukanWrap.hidden = !perluRujukan;
-        rujukanKeduaWrap.hidden = !perluRujukanKedua;
-        susunanWrap.hidden = !perluRujukanKedua;
+function kemasKiniJenisHubungan() {
+    const jenis = jenisHubungan.value;
+    const perluRujukan = jenis !== "BELUM_PASTI";
+    const perluRujukanKedua = jenis === "ANAK_KEPADA";
 
-        ahliRujukan.required = perluRujukan;
-        ahliRujukanKedua.required = false;
+    rujukanWrap.hidden = !perluRujukan;
+    rujukanKeduaWrap.hidden = !perluRujukanKedua;
+    susunanWrap.hidden = !perluRujukanKedua;
 
-        document.getElementById("susunan").required = false;
+    ahliRujukan.required = perluRujukan;
+    ahliRujukanKedua.required = false;
+
+    document.getElementById("susunan").required = false;
+
+    // Muatkan pasangan apabila jenis ANAK_KEPADA dipilih.
+    if (perluRujukanKedua && ahliRujukan.value) {
+        apabilaAhliRujukanDipilih();
+    } else {
+        ahliRujukanKedua.innerHTML =
+            '<option value="">-- Pilih ahli keluarga dahulu --</option>';
     }
+}
+
 
     async function muatSenaraiAhli() {
         ahliRujukan.innerHTML =
@@ -539,15 +549,15 @@ async function apabilaAhliRujukanDipilih() {
             if (!pengguna) return;
 
             await muatSenaraiAhli();
-            ahliRujukan.addEventListener(
+ahliRujukan.addEventListener(
     "change",
     apabilaAhliRujukanDipilih
 );
 
-            jenisHubungan.addEventListener(
-                "change",
-                kemasKiniJenisHubungan
-            );
+jenisHubungan.addEventListener(
+    "change",
+    kemasKiniJenisHubungan
+);
 
             inputGambar.addEventListener(
                 "change",
