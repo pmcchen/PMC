@@ -937,19 +937,20 @@ bekas.append(baris);
 
         if (!anak) return;
 
-        const barisAnak = elemen("div", "parents-row");
+const barisAnak = elemen("div", "parents-row");
 
-        tambahAhliDanPasangan(
-          barisAnak,
-          anak,
-          {
-            id: anak.id,
-            sumber: "ahli_keluarga"
-          }
-        );
+barisAnak.append(
+  ciptaKad(
+    anak,
+    {
+      id: anak.id,
+      sumber: "ahli_keluarga"
+    }
+  )
+);
 
-        bekasAnak.append(barisAnak);
-        jumlahAnak++;
+bekasAnak.append(barisAnak);
+jumlahAnak++;
       });
 
       if (bekasAnak.children.length) {
