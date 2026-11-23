@@ -2,450 +2,676 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | Salasilah Keluarga Pok Mark Chendol</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | Salasilah Keluarga Pok Mark Chendol</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+:root {
+  --wood: #382719;
+  --wood2: #493525;
+  --wood3: #59422d;
+  --gold: #c5a46a;
+  --gold-light: #e8d3a6;
+  --cream: #f5efe2;
+  --paper: #fffaf0;
+  --green: #405844;
+  --text: #493525;
+  --muted: #8b7658;
+  --sidebar-width: 270px;
+}
 
-    :root {
-      --coklat: #493525;
-      --coklat-gelap: #302319;
-      --coklat-muda: #806039;
-      --emas: #c5a46a;
-      --emas-cerah: #e4ce9f;
-      --krim: #f5efe2;
-      --putih: #fffaf0;
-      --hijau: #344b3b;
-      --teks: #493525;
-      --muted: #8b7658;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background:
-        radial-gradient(ellipse at top, rgba(197,164,106,.13), transparent 55%),
-        #f2ecdf;
-      color: var(--teks);
-    }
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(ellipse at top, rgba(197,164,106,.12), transparent 55%),
+    var(--cream);
+  color: var(--text);
+}
 
-    /* HEADER KEKAL KETIKA SKROL */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background:
-        linear-gradient(115deg, rgba(48,35,25,.98), rgba(73,53,37,.98));
-      color: #fff8e9;
-      padding: 15px 5%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      border-bottom: 3px solid var(--emas);
-      box-shadow: 0 5px 18px rgba(42,29,18,.22);
-    }
+/* SIDEBAR */
 
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  z-index: 1200;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(197,164,106,.025) 0px,
+      rgba(197,164,106,.025) 2px,
+      transparent 2px,
+      transparent 12px
+    ),
+    linear-gradient(160deg, #493525, #302218 75%);
+  color: #fff8e9;
+  border-right: 3px solid var(--gold);
+  box-shadow: 5px 0 22px rgba(35,23,13,.16);
+  display: flex;
+  flex-direction: column;
+  transition: transform .3s ease;
+}
 
-    .brand-seal {
-      width: 48px;
-      height: 48px;
-      flex-shrink: 0;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--emas);
-      border-radius: 50%;
-      color: var(--emas-cerah);
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 25px;
-      font-weight: 700;
-      background: rgba(197,164,106,.10);
-      box-shadow: inset 0 0 0 4px rgba(197,164,106,.08);
-    }
+.sidebar-brand {
+  padding: 25px 18px 22px;
+  text-align: center;
+  border-bottom: 1px solid rgba(197,164,106,.35);
+  position: relative;
+}
 
-    header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 19px;
-      letter-spacing: 1.2px;
-      margin: 0;
-      color: #fff8e9;
-    }
+.brand-logo {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 12px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--gold-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 700;
+  background:
+    radial-gradient(circle, rgba(197,164,106,.16), transparent 70%);
+  box-shadow: inset 0 0 0 5px rgba(197,164,106,.08);
+}
 
-    header p {
-      margin: 5px 0 0;
-      color: var(--emas-cerah);
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 17px;
-      letter-spacing: 1px;
-    }
+.sidebar-brand h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: .8px;
+  margin: 0;
+  color: #fff8e9;
+}
 
-    button {
-      border: 1px solid var(--emas);
-      background: var(--coklat-muda);
-      color: white;
-      border-radius: 7px;
-      padding: 10px 16px;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      transition: .2s;
-    }
+.sidebar-brand p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  color: var(--gold-light);
+  margin: 7px 0 0;
+  letter-spacing: 1px;
+}
 
-    button:hover {
-      background: #967347;
-      transform: translateY(-1px);
-    }
+.brand-decoration {
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 5px;
+  margin-top: 12px;
+}
 
-    main {
-      max-width: 1200px;
-      margin: auto;
-      padding: 32px 22px 55px;
-    }
+.menu-label {
+  padding: 21px 22px 9px;
+  color: #c9ad7a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
 
-    /* HERO */
-    .hero {
-      position: relative;
-      overflow: hidden;
-      background:
-        linear-gradient(120deg, rgba(48,35,25,.97), rgba(73,53,37,.94));
-      border: 1px solid var(--emas);
-      border-radius: 15px;
-      padding: 36px;
-      margin-bottom: 25px;
-      color: #fff8e9;
-      box-shadow: 0 8px 25px rgba(73,53,37,.13);
-    }
+.sidebar-menu {
+  padding: 0 12px;
+  overflow-y: auto;
+  flex: 1;
+}
 
-    .hero::before,
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 190px;
-      height: 190px;
-      border: 1px solid rgba(228,206,159,.22);
-      transform: rotate(45deg);
-      pointer-events: none;
-    }
+.sidebar-menu::-webkit-scrollbar {
+  width: 4px;
+}
 
-    .hero::before {
-      right: -65px;
-      top: -100px;
-      box-shadow:
-        0 0 0 13px rgba(228,206,159,.04),
-        0 0 0 27px rgba(228,206,159,.04);
-    }
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: rgba(197,164,106,.4);
+  border-radius: 10px;
+}
 
-    .hero::after {
-      right: 55px;
-      bottom: -155px;
-      width: 150px;
-      height: 150px;
-    }
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 14px;
+  margin: 3px 0;
+  border-radius: 7px;
+  text-decoration: none;
+  color: #e8dcc6;
+  font-size: 12px;
+  font-weight: 500;
+  transition: .2s;
+}
 
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 750px;
-    }
+.nav-link:hover {
+  background: rgba(197,164,106,.13);
+  color: #fff8e9;
+}
 
-    .hero-label {
-      display: inline-block;
-      color: var(--emas-cerah);
-      border: 1px solid rgba(228,206,159,.5);
-      padding: 6px 13px;
-      border-radius: 30px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 17px;
-    }
+.nav-link.active {
+  background: linear-gradient(90deg, rgba(197,164,106,.25), rgba(197,164,106,.07));
+  color: var(--gold-light);
+  border-left: 3px solid var(--gold);
+  font-weight: 700;
+}
 
-    .hero h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(27px, 4vw, 40px);
-      line-height: 1.2;
-      margin: 0 0 12px;
-      font-weight: 600;
-    }
+.nav-icon {
+  width: 23px;
+  text-align: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
 
-    .hero h2 span {
-      color: var(--emas-cerah);
-    }
+.sidebar-bottom {
+  padding: 15px 17px 19px;
+  border-top: 1px solid rgba(197,164,106,.3);
+  text-align: center;
+  color: #c9ad7a;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+}
 
-    .hero p {
-      color: #e6d9c2;
-      line-height: 1.8;
-      font-size: 14px;
-      margin: 0;
-    }
+/* KANDUNGAN UTAMA */
 
-    .hero-divider {
-      width: 85px;
-      height: 2px;
-      background: var(--emas);
-      margin: 20px 0;
-    }
+.app-content {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+}
 
-    /* STATISTIK */
-    .section-heading {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 32px 0 16px;
-    }
+/* HEADER KEKAL DI ATAS */
 
-    .section-heading::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: #d9c8a8;
-    }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  height: 72px;
+  padding: 0 30px;
+  background: rgba(255,250,240,.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #dfcfad;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 3px 12px rgba(73,53,37,.05);
+}
 
-    .section-heading h3 {
-      margin: 0;
-      font-family: 'Playfair Display', serif;
-      font-size: 21px;
-      color: var(--coklat);
-    }
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 17px;
-      margin-bottom: 28px;
-    }
+.topbar-title h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  margin: 0;
+  color: var(--wood);
+}
 
-    .stat {
-      background: var(--putih);
-      border: 1px solid #dfcfad;
-      border-radius: 12px;
-      padding: 22px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(73,53,37,.05);
-    }
+.topbar-title p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
 
-    .stat::after {
-      content: "";
-      position: absolute;
-      right: -22px;
-      bottom: -35px;
-      width: 90px;
-      height: 90px;
-      border: 1px solid rgba(197,164,106,.3);
-      transform: rotate(45deg);
-    }
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-    .stat span {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-    }
+.user-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e9ddc4;
+  border: 1px solid var(--gold);
+  display: grid;
+  place-items: center;
+  color: var(--wood);
+}
 
-    .stat strong {
-      display: block;
-      font-family: 'Playfair Display', serif;
-      font-size: 35px;
-      margin-top: 10px;
-      color: var(--coklat-muda);
-    }
+.logout-btn {
+  border: 1px solid var(--gold);
+  background: var(--wood2);
+  color: white;
+  border-radius: 6px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 11px;
+  transition: .2s;
+}
 
-    /* MENU */
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      margin-top: 18px;
-    }
+.logout-btn:hover {
+  background: #795b39;
+}
 
-    .menu-card {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      min-height: 95px;
-      padding: 18px;
-      text-decoration: none;
-      color: var(--coklat);
-      background: var(--putih);
-      border: 1px solid #dfcfad;
-      border-radius: 11px;
-      transition: .22s ease;
-      box-shadow: 0 3px 10px rgba(73,53,37,.04);
-    }
+.mobile-menu-btn {
+  display: none;
+  border: 1px solid #d9c49c;
+  background: #eee2c9;
+  color: var(--wood);
+  border-radius: 6px;
+  width: 39px;
+  height: 39px;
+  font-size: 21px;
+  cursor: pointer;
+}
 
-    .menu-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--emas);
-      background: #fffdf7;
-      box-shadow: 0 8px 18px rgba(73,53,37,.10);
-    }
+/* MAIN */
 
-    .menu-icon {
-      width: 48px;
-      height: 48px;
-      flex-shrink: 0;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      background: #eee2c9;
-      border: 1px solid #dfcda8;
-      color: var(--coklat-muda);
-      font-size: 23px;
-    }
+main {
+  max-width: 1250px;
+  margin: auto;
+  padding: 30px;
+}
 
-    .menu-card h4 {
-      margin: 0 0 5px;
-      font-family: 'Playfair Display', serif;
-      font-size: 17px;
-      font-weight: 600;
-    }
+/* HERO */
 
-    .menu-card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.5;
-    }
+.hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(228,206,159,.025) 0px,
+      rgba(228,206,159,.025) 2px,
+      transparent 2px,
+      transparent 13px
+    ),
+    linear-gradient(115deg, #302218, #59422d);
+  border: 1px solid var(--gold);
+  border-radius: 13px;
+  padding: 36px;
+  color: #fff8e9;
+  box-shadow: 0 8px 24px rgba(73,53,37,.12);
+}
 
-    /* KOTAK MAKLUMAT */
-    .info-panel {
-      margin-top: 30px;
-      padding: 23px;
-      background: #e9e0cf;
-      border-left: 4px solid var(--hijau);
-      border-radius: 8px;
-    }
+.hero::after {
+  content: "۞";
+  position: absolute;
+  right: 35px;
+  top: -35px;
+  font-size: 190px;
+  color: rgba(228,206,159,.07);
+  pointer-events: none;
+}
 
-    .info-panel h3 {
-      font-family: 'Playfair Display', serif;
-      margin: 0 0 8px;
-      color: var(--coklat);
-      font-size: 19px;
-    }
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+}
 
-    .info-panel p {
-      margin: 0;
-      color: #76634b;
-      line-height: 1.8;
-      font-size: 13px;
-    }
+.hero-label {
+  display: inline-block;
+  border: 1px solid rgba(228,206,159,.5);
+  color: var(--gold-light);
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 17px;
+}
 
-    footer {
-      text-align: center;
-      padding: 24px 15px;
-      color: var(--muted);
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 17px;
-      border-top: 1px solid #dfcfad;
-      margin-top: 35px;
-    }
+.hero h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(27px, 4vw, 39px);
+  line-height: 1.25;
+  margin: 0 0 13px;
+}
 
-    /* Kekalkan elemen untuk dashboard.js tanpa memaparkan senarai */
-    .data-senyap {
-      display: none !important;
-    }
+.hero h2 span {
+  color: var(--gold-light);
+}
 
-    @media (max-width: 850px) {
-      .menu-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+.hero-divider {
+  width: 75px;
+  height: 2px;
+  background: var(--gold);
+  margin: 20px 0;
+}
 
-    @media (max-width: 650px) {
-      header {
-        padding: 12px 15px;
-      }
+.hero p {
+  color: #e6d9c2;
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 0;
+}
 
-      .brand-seal {
-        width: 40px;
-        height: 40px;
-        font-size: 21px;
-      }
+#perananPengguna {
+  margin-top: 12px;
+  color: var(--gold-light);
+}
 
-      header h1 {
-        font-size: 13px;
-        letter-spacing: .5px;
-      }
+/* STATISTIK */
 
-      header p {
-        font-size: 14px;
-      }
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 31px 0 16px;
+}
 
-      header button {
-        padding: 9px 11px;
-        font-size: 11px;
-      }
+.section-heading h3 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  color: var(--wood);
+}
 
-      main {
-        padding: 20px 14px 40px;
-      }
+.section-heading::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #d9c8a8;
+}
 
-      .hero {
-        padding: 26px 21px;
-      }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 17px;
+}
 
-      .stats {
-        grid-template-columns: 1fr;
-        gap: 11px;
-      }
+.stat {
+  position: relative;
+  overflow: hidden;
+  background: var(--paper);
+  border: 1px solid #dfcfad;
+  border-radius: 10px;
+  padding: 23px;
+  box-shadow: 0 4px 13px rgba(73,53,37,.05);
+}
 
-      .stat {
-        padding: 17px 19px;
-      }
+.stat::after {
+  content: "۞";
+  position: absolute;
+  right: -5px;
+  bottom: -22px;
+  font-size: 80px;
+  color: rgba(197,164,106,.10);
+}
 
-      .stat strong {
-        font-size: 30px;
-      }
+.stat-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
 
-      .menu-grid {
-        grid-template-columns: 1fr;
-        gap: 11px;
-      }
+.stat strong {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  color: var(--wood3);
+  margin-top: 12px;
+}
 
-      .menu-card {
-        min-height: 80px;
-        padding: 14px;
-      }
+/* NOTIS WARISAN */
 
-      .section-heading h3 {
-        font-size: 18px;
-      }
-    }
-  </style>
+.warisan-note {
+  margin-top: 28px;
+  background: #e9e0cf;
+  border-left: 4px solid var(--green);
+  border-radius: 7px;
+  padding: 21px 23px;
+}
+
+.warisan-note h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  margin: 0 0 8px;
+}
+
+.warisan-note p {
+  color: #76634b;
+  line-height: 1.8;
+  font-size: 12px;
+  margin: 0;
+}
+
+footer {
+  text-align: center;
+  padding: 25px 10px;
+  margin-top: 35px;
+  border-top: 1px solid #dfcfad;
+  color: var(--muted);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+}
+
+/* OVERLAY TELEFON */
+
+.sidebar-overlay {
+  display: none;
+}
+
+.data-senyap {
+  display: none !important;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  :root {
+    --sidebar-width: 240px;
+  }
+
+  main {
+    padding: 24px 20px;
+  }
+
+  .topbar {
+    padding: 0 20px;
+  }
+}
+
+/* TELEFON */
+
+@media (max-width: 700px) {
+  .sidebar {
+    width: 280px;
+    transform: translateX(-105%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .app-content {
+    margin-left: 0;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,13,8,.55);
+    z-index: 1100;
+  }
+
+  .topbar {
+    height: 64px;
+    padding: 0 13px;
+  }
+
+  .mobile-menu-btn {
+    display: grid;
+    place-items: center;
+  }
+
+  .topbar-title {
+    gap: 8px;
+  }
+
+  .topbar-title h1 {
+    font-size: 14px;
+  }
+
+  .topbar-title p {
+    font-size: 10px;
+  }
+
+  .topbar-right {
+    gap: 7px;
+  }
+
+  .logout-btn {
+    padding: 9px 10px;
+    font-size: 10px;
+  }
+
+  .user-mark {
+    display: none;
+  }
+
+  main {
+    padding: 19px 14px 35px;
+  }
+
+  .hero {
+    padding: 26px 21px;
+  }
+
+  .hero::after {
+    right: -35px;
+    top: -10px;
+    font-size: 130px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .stat {
+    padding: 18px 20px;
+  }
+
+  .stat strong {
+    font-size: 30px;
+    margin-top: 7px;
+  }
+
+  .section-heading h3 {
+    font-size: 19px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <header>
-    <div class="header-brand">
-      <div class="brand-seal">م</div>
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <div class="brand-logo">م</div>
+    <h2>SALASILAH KELUARGA<br>POK MARK CHENDOL</h2>
+    <p>Arkib dan Warisan Keluarga</p>
+    <div class="brand-decoration">✦ ━ ✦ ━ ✦</div>
+  </div>
+
+  <div class="menu-label">Menu Utama</div>
+
+  <nav class="sidebar-menu">
+
+    <a href="dashboard.html" class="nav-link active">
+      <span class="nav-icon">⌂</span>
+      Dashboard
+    </a>
+
+    <a href="salasilah.html" class="nav-link">
+      <span class="nav-icon">🌳</span>
+      Pohon Salasilah
+    </a>
+
+    <a href="ahli-keluarga.html" class="nav-link">
+      <span class="nav-icon">♧</span>
+      Ahli Keluarga
+    </a>
+
+    <a href="sejarah.html" class="nav-link">
+      <span class="nav-icon">📜</span>
+      Sejarah Keluarga
+    </a>
+
+    <a href="galeri.html" class="nav-link">
+      <span class="nav-icon">▧</span>
+      Galeri Keluarga
+    </a>
+
+    <a href="cadangan.html" class="nav-link">
+      <span class="nav-icon">✍</span>
+      Cadangan Maklumat
+    </a>
+
+    <div class="menu-label">Pengurusan</div>
+
+    <a href="pengurusan-ahli.html" class="nav-link">
+      <span class="nav-icon">♙</span>
+      Pengurusan Ahli
+    </a>
+
+    <a href="pengurusan-hubungan.html" class="nav-link">
+      <span class="nav-icon">⌘</span>
+      Pengurusan Hubungan
+    </a>
+
+    <a href="admin.html" class="nav-link">
+      <span class="nav-icon">⚜</span>
+      Pentadbiran
+    </a>
+
+  </nav>
+
+  <div class="sidebar-bottom">
+    ✦ Warisan Keluarga, Amanah Generasi ✦
+  </div>
+
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- KANDUNGAN -->
+<div class="app-content">
+
+  <header class="topbar">
+
+    <div class="topbar-title">
+      <button class="mobile-menu-btn" id="btnMenu" aria-label="Buka menu">
+        ☰
+      </button>
+
       <div>
-        <h1>SALASILAH KELUARGA POK MARK CHENDOL</h1>
-        <p>Arkib dan Warisan Keluarga</p>
+        <h1>Dashboard</h1>
+        <p>Portal Salasilah Keluarga</p>
       </div>
     </div>
 
-    <button id="btnKeluar">Log Keluar</button>
+    <div class="topbar-right">
+      <div class="user-mark">م</div>
+      <button class="logout-btn" id="btnKeluar">Log Keluar</button>
+    </div>
+
   </header>
 
   <main>
 
     <section class="hero">
       <div class="hero-content">
-        <div class="hero-label">Warisan • Keturunan • Kekeluargaan</div>
+
+        <div class="hero-label">
+          WARISAN • KETURUNAN • KEKELUARGAAN
+        </div>
 
         <h2>
           Assalamualaikum,<br>
@@ -461,7 +687,8 @@
           generasi yang akan datang.
         </p>
 
-        <p id="perananPengguna" style="margin-top:12px;"></p>
+        <p id="perananPengguna"></p>
+
       </div>
     </section>
 
@@ -470,95 +697,25 @@
     </div>
 
     <section class="stats">
+
       <div class="stat">
-        <span>Jumlah Ahli Keluarga</span>
+        <span class="stat-label">Jumlah Ahli Keluarga</span>
         <strong id="jumlahAhli">—</strong>
       </div>
 
       <div class="stat">
-        <span>Jumlah Generasi</span>
+        <span class="stat-label">Jumlah Generasi</span>
         <strong id="jumlahGenerasi">—</strong>
       </div>
 
       <div class="stat">
-        <span>Ahli Dipaparkan</span>
+        <span class="stat-label">Ahli Dipaparkan</span>
         <strong id="jumlahDipaparkan">—</strong>
       </div>
+
     </section>
 
-    <div class="section-heading">
-      <h3>Menu Utama</h3>
-    </div>
-
-    <nav class="menu-grid">
-
-      <a class="menu-card" href="salasilah.html">
-        <div class="menu-icon">🌳</div>
-        <div>
-          <h4>Pohon Salasilah</h4>
-          <p>Lihat susur galur dan keturunan keluarga</p>
-        </div>
-      </a>
-
-      <a class="menu-card" href="ahli-keluarga.html">
-        <div class="menu-icon">👨‍👩‍👧‍👦</div>
-        <div>
-          <h4>Ahli Keluarga</h4>
-          <p>Kenali ahli dan maklumat keluarga</p>
-        </div>
-      </a>
-
-      <a class="menu-card" href="sejarah.html">
-        <div class="menu-icon">📜</div>
-        <div>
-          <h4>Sejarah Keluarga</h4>
-          <p>Catatan asal usul dan kisah terdahulu</p>
-        </div>
-      </a>
-
-      <a class="menu-card" href="galeri.html">
-        <div class="menu-icon">🖼️</div>
-        <div>
-          <h4>Galeri Keluarga</h4>
-          <p>Himpunan gambar dan kenangan keluarga</p>
-        </div>
-      </a>
-
-      <a class="menu-card" href="cadangan.html">
-        <div class="menu-icon">✍️</div>
-        <div>
-          <h4>Cadangan Maklumat</h4>
-          <p>Sumbangkan maklumat dan pembetulan rekod</p>
-        </div>
-      </a>
-
-      <a class="menu-card" href="pengurusan-ahli.html">
-        <div class="menu-icon">👤</div>
-        <div>
-          <h4>Pengurusan Ahli</h4>
-          <p>Pengurusan rekod ahli keluarga</p>
-        </div>
-      </a>
-
-      <a class="menu-card" href="pengurusan-hubungan.html">
-        <div class="menu-icon">🔗</div>
-        <div>
-          <h4>Pengurusan Hubungan</h4>
-          <p>Hubungan ibu bapa, anak dan pasangan</p>
-        </div>
-      </a>
-
-      <a class="menu-card" href="admin.html">
-        <div class="menu-icon">⚜️</div>
-        <div>
-          <h4>Pentadbiran</h4>
-          <p>Kelulusan dan kawalan sistem</p>
-        </div>
-      </a>
-
-    </nav>
-
-    <section class="info-panel">
+    <section class="warisan-note">
       <h3>Memelihara Warisan, Menyatukan Keturunan</h3>
       <p>
         Salasilah ini merupakan khazanah bersama keluarga.
@@ -574,19 +731,58 @@
       <span style="font-size:14px;">Warisan keluarga, amanah generasi</span>
     </footer>
 
-    <!-- Elemen dikekalkan untuk keserasian dashboard.js -->
+    <!-- Elemen sokongan dashboard.js dikekalkan tetapi disembunyikan -->
     <div class="data-senyap">
       <div id="senaraiAhli"></div>
       <p id="mesej"></p>
     </div>
 
   </main>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/supabase-config.js?v=3"></script>
-  <script src="./js/auth.js?v=3"></script>
-  <script src="./js/auth-guard.js?v=3"></script>
-  <script src="./js/dashboard.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=3"></script>
+<script src="./js/auth.js?v=3"></script>
+<script src="./js/auth-guard.js?v=3"></script>
+<script src="./js/dashboard.js?v=4"></script>
+
+<script>
+(function () {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+  const btnMenu = document.getElementById("btnMenu");
+
+  function bukaMenu() {
+    sidebar.classList.add("open");
+    overlay.classList.add("show");
+  }
+
+  function tutupMenu() {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+  }
+
+  btnMenu.addEventListener("click", function () {
+    if (sidebar.classList.contains("open")) {
+      tutupMenu();
+    } else {
+      bukaMenu();
+    }
+  });
+
+  overlay.addEventListener("click", tutupMenu);
+
+  document.querySelectorAll(".nav-link").forEach(function (link) {
+    link.addEventListener("click", tutupMenu);
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      tutupMenu();
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
