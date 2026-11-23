@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
+
+ <link rel="stylesheet" href="./css/sidebar.css"> 
+  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard | Salasilah Keluarga Pok Mark Chendol</title>
@@ -570,86 +573,12 @@ footer {
 
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
 
-  <div class="sidebar-brand">
-    <div class="brand-logo">م</div>
-    <h2>SALASILAH KELUARGA<br>POK MARK CHENDOL</h2>
-    <p>Arkib dan Warisan Keluarga</p>
-    <div class="brand-decoration">✦ ━ ✦ ━ ✦</div>
-  </div>
-
-  <div class="menu-label">Menu Utama</div>
-
-  <nav class="sidebar-menu">
-
-    <a href="dashboard.html" class="nav-link active">
-      <span class="nav-icon">⌂</span>
-      Dashboard
-    </a>
-
-    <a href="salasilah.html" class="nav-link">
-      <span class="nav-icon">🌳</span>
-      Pohon Salasilah
-    </a>
-
-    <a href="ahli-keluarga.html" class="nav-link">
-      <span class="nav-icon">♧</span>
-      Ahli Keluarga
-    </a>
-
-    <a href="sejarah.html" class="nav-link">
-      <span class="nav-icon">📜</span>
-      Sejarah Keluarga
-    </a>
-
-    <a href="galeri.html" class="nav-link">
-      <span class="nav-icon">▧</span>
-      Galeri Keluarga
-    </a>
-
-    <a href="cadangan.html" class="nav-link">
-      <span class="nav-icon">✍</span>
-      Cadangan Maklumat
-    </a>
-
-    <div class="menu-label">Pengurusan</div>
-
-    <a href="pengurusan-ahli.html" class="nav-link">
-      <span class="nav-icon">♙</span>
-      Pengurusan Ahli
-    </a>
-
-    <a href="pengurusan-hubungan.html" class="nav-link">
-      <span class="nav-icon">⌘</span>
-      Pengurusan Hubungan
-    </a>
-
-    <a href="admin.html" class="nav-link">
-      <span class="nav-icon">⚜</span>
-      Pentadbiran
-    </a>
-
-  </nav>
-
-  <div class="sidebar-bottom">
-    ✦ Warisan Keluarga, Amanah Generasi ✦
-  </div>
-
-</aside>
-
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- KANDUNGAN -->
 <div class="app-content">
 
   <header class="topbar">
-
-    <div class="topbar-title">
-      <button class="mobile-menu-btn" id="btnMenu" aria-label="Buka menu">
-        ☰
-      </button>
 
       <div>
         <h1>Dashboard</h1>
@@ -746,43 +675,7 @@ footer {
 <script src="./js/auth-guard.js?v=3"></script>
 <script src="./js/dashboard.js?v=4"></script>
 
-<script>
-(function () {
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("sidebarOverlay");
-  const btnMenu = document.getElementById("btnMenu");
-
-  function bukaMenu() {
-    sidebar.classList.add("open");
-    overlay.classList.add("show");
-  }
-
-  function tutupMenu() {
-    sidebar.classList.remove("open");
-    overlay.classList.remove("show");
-  }
-
-  btnMenu.addEventListener("click", function () {
-    if (sidebar.classList.contains("open")) {
-      tutupMenu();
-    } else {
-      bukaMenu();
-    }
-  });
-
-  overlay.addEventListener("click", tutupMenu);
-
-  document.querySelectorAll(".nav-link").forEach(function (link) {
-    link.addEventListener("click", tutupMenu);
-  });
-
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
-      tutupMenu();
-    }
-  });
-})();
-</script>
+<script src="./js/sidebar.js?v=1"></script>
 
 </body>
 </html>
