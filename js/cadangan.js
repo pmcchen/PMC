@@ -85,62 +85,163 @@
         });
     }
 
-    async function muatSenaraiPasangan() {
+
+async function muatPasanganBagiAhli(idAhli) {
+    ahliRujukanKedua.innerHTML =
+        '<option value="">Memuatkan pasangan...</option>';
+
+    ahliRujukanKedua.value = "";
+
+    if (!idAhli) {
         ahliRujukanKedua.innerHTML =
-            '<option value="">Memuatkan senarai ibu/bapa...</option>';
-
-        const [
-            { data: ahliData, error: ahliError },
-            { data: pasanganData, error: pasanganError }
-        ] = await Promise.all([
-            db
-                .from("ahli_keluarga")
-                .select("id, nama_penuh")
-                .order("nama_penuh", { ascending: true }),
-
-            db
-                .from("ahli_pasangan")
-                .select("id, nama_penuh")
-                .order("nama_penuh", { ascending: true })
-        ]);
-
-        if (ahliError) throw ahliError;
-        if (pasanganError) throw pasanganError;
-
-        senaraiPasangan = [
-            ...(ahliData || []).map(ahli => ({
-                id: ahli.id,
-                nama_penuh: ahli.nama_penuh,
-                sumber: "ahli_keluarga"
-            })),
-
-            ...(pasanganData || []).map(ahli => ({
-                id: ahli.id,
-                nama_penuh: ahli.nama_penuh,
-                sumber: "ahli_pasangan"
-            }))
-        ];
-
-        senaraiPasangan.sort((a, b) =>
-            a.nama_penuh.localeCompare(b.nama_penuh, "ms")
-        );
-
-        ahliRujukanKedua.innerHTML =
-            '<option value="">-- Tiada / Belum diketahui --</option>';
-
-        senaraiPasangan.forEach(ahli => {
-            const option = document.createElement("option");
-
-            option.value = `${ahli.sumber}:${ahli.id}`;
-            option.textContent =
-                `${ahli.nama_penuh} (${ahli.sumber === "ahli_pasangan"
-                    ? "Pasangan luar salasilah"
-                    : "Ahli keluarga"})`;
-
-            ahliRujukanKedua.appendChild(option);
-        });
+            '<option value="">-- Pilih ahli keluarga dahulu --</option>';
+        return;
     }
 
+    // Cari pasangan yang direkodkan dalam hubungan_pasangan.
+    const { data: hubunganDalam, error: errorDalam } = await db
+        .from("hubungan_pasangan")
+        .select("pasangan_1, pasangan_2, status_hubungan")
+        .or(`pasangan_1.eq.${idAhli},pasangan_2.eq.${idAhli}`);
+
+    if (errorDalam) throw errorDalam;
+
+    // Cari pasangan luar melalui hubungan_pasangan_luar.
+    const { data: hubunganLuar, error: errorLuar } = await db
+        .from("hubungan_pasangan_luar")
+        .select("id_ahli_pasangan, status_hubungan")
+        .eq("id_ahli_keluarga", idAhli);
+
+    if (errorLuar) throw errorLuar;
+
+    const idPasanganKeluarga = [];
+    const idPasanganLuar = [];
+
+    (hubunganDalam || []).forEach(h => {
+        const idPasangan =
+            h.pasangan_1 === idAhli
+                ? h.pasangan_2
+                : h.pasangan_1;
+
+        if (idPasangan && idPasangan !== idAhli) {
+            idPasanganKeluarga.push({
+                id: idPasangan,
+                status: h.status_hubungan
+            });
+        }
+    });
+
+    (hubunganLuar || []).forEach(h => {
+        if (h.id_ahli_pasangan) {
+            idPasanganLuar.push({
+                id: h.id_ahli_pasangan,
+                status: h.status_hubungan
+            });
+        }
+    });
+
+    // Dapatkan nama pasangan daripada jadual masing-masing.
+    const [hasilKeluarga, hasilLuar] = await Promise.all([
+        idPasanganKeluarga.length
+            ? db.from("ahli_keluarga")
+                .select("id, nama_penuh")
+                .in("id", idPasanganKeluarga.map(p => p.id))
+            : Promise.resolve({ data: [], error: null }),
+
+        idPasanganLuar.length
+            ? db.from("ahli_pasangan")
+                .select("id, nama_penuh")
+                .in("id", idPasanganLuar.map(p => p.id))
+            : Promise.resolve({ data: [], error: null })
+    ]);
+
+    if (hasilKeluarga.error) throw hasilKeluarga.error;
+    if (hasilLuar.error) throw hasilLuar.error;
+
+    const pasangan = [];
+
+    (hasilKeluarga.data || []).forEach(ahli => {
+        const hubungan = idPasanganKeluarga.find(
+            p => p.id === ahli.id
+        );
+
+        pasangan.push({
+            id: ahli.id,
+            nama_penuh: ahli.nama_penuh,
+            sumber: "ahli_keluarga",
+            status: hubungan?.status || ""
+        });
+    });
+
+    (hasilLuar.data || []).forEach(ahli => {
+        const hubungan = idPasanganLuar.find(
+            p => p.id === ahli.id
+        );
+
+        pasangan.push({
+            id: ahli.id,
+            nama_penuh: ahli.nama_penuh,
+            sumber: "ahli_pasangan",
+            status: hubungan?.status || ""
+        });
+    });
+
+    // Elakkan pasangan pendua.
+    const unik = [
+        ...new Map(
+            pasangan.map(p => [`${p.sumber}:${p.id}`, p])
+        ).values()
+    ];
+
+    unik.sort((a, b) =>
+        a.nama_penuh.localeCompare(b.nama_penuh, "ms")
+    );
+
+    ahliRujukanKedua.innerHTML =
+        '<option value="">-- Tiada / Belum diketahui --</option>';
+
+    unik.forEach(ahli => {
+        const option = document.createElement("option");
+
+        option.value = `${ahli.sumber}:${ahli.id}`;
+
+        option.textContent =
+            ahli.nama_penuh +
+            (ahli.status ? ` (${ahli.status})` : "");
+
+        ahliRujukanKedua.appendChild(option);
+    });
+}
+
+
+async function apabilaAhliRujukanDipilih() {
+    ahliRujukanKedua.innerHTML =
+        '<option value="">-- Pilih ahli keluarga dahulu --</option>';
+
+    if (
+        jenisHubungan.value !== "ANAK_KEPADA" ||
+        !ahliRujukan.value
+    ) {
+        return;
+    }
+
+    try {
+        await muatPasanganBagiAhli(ahliRujukan.value);
+    } catch (error) {
+        console.error("Ralat memuatkan pasangan:", error);
+
+        ahliRujukanKedua.innerHTML =
+            '<option value="">Gagal memuatkan pasangan</option>';
+
+        paparMesej(
+            "Gagal memuatkan senarai pasangan: " + error.message,
+            "error"
+        );
+    }
+}
+
+
+    
     function pratontonGambar() {
         const fail = inputGambar.files[0];
 
@@ -325,7 +426,10 @@
                 return;
             }
 
-            if (idKedua === ahliRujukan.value) {
+            if (
+    sumber === "ahli_keluarga" &&
+    idKedua === ahliRujukan.value
+) {
                 paparMesej(
                     "Ibu/bapa pertama dan kedua tidak boleh orang yang sama.",
                     "error"
@@ -435,7 +539,10 @@
             if (!pengguna) return;
 
             await muatSenaraiAhli();
-            await muatSenaraiPasangan();
+            ahliRujukan.addEventListener(
+    "change",
+    apabilaAhliRujukanDipilih
+);
 
             jenisHubungan.addEventListener(
                 "change",
