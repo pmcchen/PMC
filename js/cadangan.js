@@ -10,19 +10,30 @@
     const photoPreview = document.getElementById("photoPreview");
     const photoPlaceholder = document.getElementById("photoPlaceholder");
     const jenisHubungan = document.getElementById("jenisHubungan");
+
     const rujukanWrap = document.getElementById("rujukanWrap");
     const ahliRujukan = document.getElementById("ahliRujukan");
+
+    const rujukanKeduaWrap =
+        document.getElementById("rujukanKeduaWrap");
+    const ahliRujukanKedua =
+        document.getElementById("ahliRujukanKedua");
+
     const susunanWrap = document.getElementById("susunanWrap");
     const btnHantar = document.getElementById("btnHantar");
 
     let pengguna = null;
     let gambarDipilih = null;
     let senaraiAhli = [];
+    let senaraiPasangan = [];
 
     function paparMesej(teks, jenis) {
         mesej.textContent = teks;
         mesej.className = jenis;
-        mesej.scrollIntoView({ behavior: "smooth", block: "center" });
+        mesej.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
     }
 
     function nilai(id) {
@@ -33,11 +44,15 @@
     function kemasKiniJenisHubungan() {
         const jenis = jenisHubungan.value;
         const perluRujukan = jenis !== "BELUM_PASTI";
+        const perluRujukanKedua = jenis === "ANAK_KEPADA";
 
         rujukanWrap.hidden = !perluRujukan;
-        susunanWrap.hidden = jenis !== "ANAK_KEPADA";
+        rujukanKeduaWrap.hidden = !perluRujukanKedua;
+        susunanWrap.hidden = !perluRujukanKedua;
 
         ahliRujukan.required = perluRujukan;
+        ahliRujukanKedua.required = false;
+
         document.getElementById("susunan").required = false;
     }
 
@@ -54,7 +69,7 @@
             console.error("Ralat senarai ahli:", error);
             ahliRujukan.innerHTML =
                 '<option value="">Tidak dapat memuatkan senarai ahli</option>';
-            return;
+            throw error;
         }
 
         senaraiAhli = data || [];
@@ -67,6 +82,62 @@
             option.value = ahli.id;
             option.textContent = ahli.nama_penuh;
             ahliRujukan.appendChild(option);
+        });
+    }
+
+    async function muatSenaraiPasangan() {
+        ahliRujukanKedua.innerHTML =
+            '<option value="">Memuatkan senarai ibu/bapa...</option>';
+
+        const [
+            { data: ahliData, error: ahliError },
+            { data: pasanganData, error: pasanganError }
+        ] = await Promise.all([
+            db
+                .from("ahli_keluarga")
+                .select("id, nama_penuh")
+                .order("nama_penuh", { ascending: true }),
+
+            db
+                .from("ahli_pasangan")
+                .select("id, nama_penuh")
+                .order("nama_penuh", { ascending: true })
+        ]);
+
+        if (ahliError) throw ahliError;
+        if (pasanganError) throw pasanganError;
+
+        senaraiPasangan = [
+            ...(ahliData || []).map(ahli => ({
+                id: ahli.id,
+                nama_penuh: ahli.nama_penuh,
+                sumber: "ahli_keluarga"
+            })),
+
+            ...(pasanganData || []).map(ahli => ({
+                id: ahli.id,
+                nama_penuh: ahli.nama_penuh,
+                sumber: "ahli_pasangan"
+            }))
+        ];
+
+        senaraiPasangan.sort((a, b) =>
+            a.nama_penuh.localeCompare(b.nama_penuh, "ms")
+        );
+
+        ahliRujukanKedua.innerHTML =
+            '<option value="">-- Tiada / Belum diketahui --</option>';
+
+        senaraiPasangan.forEach(ahli => {
+            const option = document.createElement("option");
+
+            option.value = `${ahli.sumber}:${ahli.id}`;
+            option.textContent =
+                `${ahli.nama_penuh} (${ahli.sumber === "ahli_pasangan"
+                    ? "Pasangan luar salasilah"
+                    : "Ahli keluarga"})`;
+
+            ahliRujukanKedua.appendChild(option);
         });
     }
 
@@ -87,7 +158,10 @@
 
         if (!jenisDibenarkan.includes(fail.type)) {
             inputGambar.value = "";
-            paparMesej("Format gambar tidak dibenarkan. Gunakan JPG, PNG atau WEBP.", "error");
+            paparMesej(
+                "Format gambar tidak dibenarkan. Gunakan JPG, PNG atau WEBP.",
+                "error"
+            );
             return;
         }
 
@@ -120,7 +194,6 @@
             Math.random().toString(36).slice(2, 10) +
             "." + sambungan;
 
-        // Setiap pengguna menggunakan folder UID sendiri.
         const laluan = `${userId}/${namaFail}`;
 
         const { error } = await db.storage
@@ -133,7 +206,6 @@
 
         if (error) throw error;
 
-        // Simpan path sahaja. Bucket kekal private.
         return laluan;
     }
 
@@ -161,6 +233,20 @@
 
         const generasi = kiraGenerasi(jenis, ahliDipilih);
 
+        let idRujukanKedua = null;
+        let sumberRujukanKedua = null;
+
+        if (
+            jenis === "ANAK_KEPADA" &&
+            ahliRujukanKedua.value
+        ) {
+            const bahagian =
+                ahliRujukanKedua.value.split(":");
+
+            sumberRujukanKedua = bahagian[0];
+            idRujukanKedua = bahagian[1];
+        }
+
         return {
             nama_penuh: nilai("nama_penuh"),
             jantina: nilai("jantina") || null,
@@ -177,6 +263,13 @@
             hubungan: {
                 jenis: jenis,
                 id_ahli_rujukan: idRujukan || null,
+
+                id_ahli_rujukan_kedua:
+                    idRujukanKedua,
+
+                sumber_ahli_rujukan_kedua:
+                    sumberRujukanKedua,
+
                 susunan_kelahiran:
                     jenis === "ANAK_KEPADA" && nilai("susunan")
                         ? Number(nilai("susunan"))
@@ -189,7 +282,10 @@
         event.preventDefault();
 
         if (!pengguna || !pengguna.id) {
-            paparMesej("Sesi pengguna tidak sah. Sila log masuk semula.", "error");
+            paparMesej(
+                "Sesi pengguna tidak sah. Sila log masuk semula.",
+                "error"
+            );
             return;
         }
 
@@ -201,8 +297,41 @@
         const jenis = jenisHubungan.value;
 
         if (jenis !== "BELUM_PASTI" && !ahliRujukan.value) {
-            paparMesej("Sila pilih ahli keluarga untuk hubungan yang dicadangkan.", "error");
+            paparMesej(
+                "Sila pilih ahli keluarga untuk hubungan yang dicadangkan.",
+                "error"
+            );
             return;
+        }
+
+        if (
+            jenis === "ANAK_KEPADA" &&
+            ahliRujukanKedua.value
+        ) {
+            const bahagian =
+                ahliRujukanKedua.value.split(":");
+
+            const sumber = bahagian[0];
+            const idKedua = bahagian[1];
+
+            if (
+                !["ahli_keluarga", "ahli_pasangan"].includes(sumber) ||
+                !idKedua
+            ) {
+                paparMesej(
+                    "Pilihan ibu/bapa kedua tidak sah.",
+                    "error"
+                );
+                return;
+            }
+
+            if (idKedua === ahliRujukan.value) {
+                paparMesej(
+                    "Ibu/bapa pertama dan kedua tidak boleh orang yang sama.",
+                    "error"
+                );
+                return;
+            }
         }
 
         const susunan = nilai("susunan");
@@ -210,9 +339,15 @@
         if (
             jenis === "ANAK_KEPADA" &&
             susunan &&
-            (!Number.isInteger(Number(susunan)) || Number(susunan) < 1)
+            (
+                !Number.isInteger(Number(susunan)) ||
+                Number(susunan) < 1
+            )
         ) {
-            paparMesej("Susunan kelahiran mesti nombor bulat bermula daripada 1.", "error");
+            paparMesej(
+                "Susunan kelahiran mesti nombor bulat bermula daripada 1.",
+                "error"
+            );
             return;
         }
 
@@ -222,20 +357,22 @@
             nilai("tarikh_meninggal") &&
             nilai("tarikh_meninggal") < nilai("tarikh_lahir")
         ) {
-            paparMesej("Tarikh meninggal tidak boleh lebih awal daripada tarikh lahir.", "error");
+            paparMesej(
+                "Tarikh meninggal tidak boleh lebih awal daripada tarikh lahir.",
+                "error"
+            );
             return;
         }
 
         btnHantar.disabled = true;
         btnHantar.textContent = "Sedang menghantar...";
 
-        let laluanGambar = null;
-
         try {
-            // Muat naik gambar dahulu jika ada.
-            laluanGambar = await muatNaikGambar(pengguna.id);
+            const laluanGambar =
+                await muatNaikGambar(pengguna.id);
 
-            const dataCadangan = binaDataCadangan(laluanGambar);
+            const dataCadangan =
+                binaDataCadangan(laluanGambar);
 
             const { error } = await db
                 .from("cadangan_kemaskini")
@@ -258,6 +395,7 @@
             gambarDipilih = null;
             photoPreview.style.display = "none";
             photoPlaceholder.style.display = "flex";
+
             kemasKiniJenisHubungan();
 
         } catch (error) {
@@ -276,12 +414,18 @@
 
     async function mula() {
         if (!db) {
-            paparMesej("Supabase belum disambungkan. Semak supabase-config.js.", "error");
+            paparMesej(
+                "Supabase belum disambungkan. Semak supabase-config.js.",
+                "error"
+            );
             return;
         }
 
         if (typeof window.sahkanAkses !== "function") {
-            paparMesej("Fail auth-guard.js tidak berjaya dimuatkan.", "error");
+            paparMesej(
+                "Fail auth-guard.js tidak berjaya dimuatkan.",
+                "error"
+            );
             return;
         }
 
@@ -291,6 +435,7 @@
             if (!pengguna) return;
 
             await muatSenaraiAhli();
+            await muatSenaraiPasangan();
 
             jenisHubungan.addEventListener(
                 "change",
@@ -311,6 +456,7 @@
 
         } catch (error) {
             console.error(error);
+
             paparMesej(
                 "Tidak dapat memulakan borang: " + error.message,
                 "error"
