@@ -1,0 +1,735 @@
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengurusan Ahli | Salasilah Keluarga Pok Mark Chendol</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="./css/sidebar.css">
+
+<style>
+:root {
+    --wood: #382719;
+    --wood2: #493525;
+    --wood3: #59422d;
+    --gold: #c5a46a;
+    --gold-light: #e8d3a6;
+    --cream: #f5efe2;
+    --paper: #fffaf0;
+    --green: #405844;
+    --text: #493525;
+    --muted: #8b7658;
+    --border: #dfcfad;
+    --sidebar-width: 270px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background:
+        radial-gradient(ellipse at top, rgba(197,164,106,.12), transparent 55%),
+        var(--cream);
+    color: var(--text);
+}
+
+/* KANDUNGAN UTAMA */
+
+.app-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+/* TOPBAR */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    height: 72px;
+    padding: 0 30px;
+    background: rgba(255,250,240,.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 12px rgba(73,53,37,.05);
+}
+
+.topbar-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    margin: 0;
+    color: var(--wood);
+}
+
+.topbar-title p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-btn {
+    border: 1px solid var(--gold);
+    background: var(--wood2);
+    color: white;
+    border-radius: 6px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 11px;
+    transition: .2s;
+}
+
+.logout-btn:hover {
+    background: #795b39;
+}
+
+/* MAIN */
+
+main {
+    max-width: 1250px;
+    margin: auto;
+    padding: 30px;
+}
+
+/* PAGE INTRO */
+
+.page-intro {
+    position: relative;
+    overflow: hidden;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(228,206,159,.025) 0px,
+            rgba(228,206,159,.025) 2px,
+            transparent 2px,
+            transparent 13px
+        ),
+        linear-gradient(115deg, #302218, #59422d);
+    border: 1px solid var(--gold);
+    border-radius: 13px;
+    padding: 28px 32px;
+    color: #fff8e9;
+    box-shadow: 0 8px 24px rgba(73,53,37,.12);
+    margin-bottom: 25px;
+}
+
+.page-intro::after {
+    content: "۞";
+    position: absolute;
+    right: 25px;
+    top: -35px;
+    font-size: 150px;
+    color: rgba(228,206,159,.07);
+    pointer-events: none;
+}
+
+.page-intro-content {
+    position: relative;
+    z-index: 1;
+}
+
+.page-label {
+    display: inline-block;
+    border: 1px solid rgba(228,206,159,.5);
+    color: var(--gold-light);
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.page-intro h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin: 0 0 10px;
+}
+
+.page-intro p {
+    color: #e6d9c2;
+    font-size: 12px;
+    line-height: 1.8;
+    margin: 0;
+}
+
+/* SECTION */
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin: 28px 0 15px;
+}
+
+.section-heading h3 {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    color: var(--wood);
+}
+
+.section-heading::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #d9c8a8;
+}
+
+/* PANEL */
+
+.panel {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 23px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 13px rgba(73,53,37,.05);
+}
+
+.panel h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--wood);
+    font-size: 20px;
+    margin: 0 0 17px;
+}
+
+/* TOOLBAR */
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+input, select {
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: white;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    min-width: 150px;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(197,164,106,.13);
+}
+
+#carian {
+    flex: 1;
+}
+
+button {
+    font-family: 'Inter', sans-serif;
+    padding: 10px 15px;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: .2s;
+}
+
+.btn-utama {
+    background: var(--wood2);
+    color: white;
+    border: 1px solid var(--gold);
+}
+
+.btn-utama:hover {
+    background: #795b39;
+}
+
+.btn-edit {
+    background: #e8d5ad;
+    color: var(--text);
+}
+
+.btn-edit:hover {
+    background: #ddc392;
+}
+
+.btn-padam {
+    background: #a83d32;
+    color: white;
+}
+
+.btn-padam:hover {
+    background: #862d25;
+}
+
+/* TABLE */
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e8dcc6;
+    border-radius: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+th, td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #e8dcc6;
+    text-align: left;
+    font-size: 12px;
+}
+
+th {
+    background: #eee0c5;
+    color: var(--wood);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+td {
+    color: var(--text);
+}
+
+tbody tr:hover {
+    background: #fbf4e7;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.status-asal {
+    color: #805a22;
+    font-weight: 700;
+}
+
+.status-pengguna {
+    color: #287a45;
+    font-weight: 700;
+}
+
+#mesej {
+    margin: 12px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+/* PROFIL */
+
+.profil {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.profil img {
+    width: 150px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #eee0c5;
+    border: 2px solid var(--gold);
+}
+
+/* BORANG */
+
+.medan {
+    margin: 12px 0;
+}
+
+.medan label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--wood);
+}
+
+.medan input,
+.medan select {
+    width: 100%;
+}
+
+.medan small {
+    display: block;
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.grid-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 18px;
+}
+
+#previewEditGambar {
+    border: 2px solid var(--gold);
+    background: #eee0c5;
+}
+
+/* FOOTER */
+
+footer {
+    text-align: center;
+    padding: 25px 10px;
+    margin-top: 30px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    main {
+        padding: 24px 20px;
+    }
+
+    .topbar {
+        padding: 0 20px;
+    }
+}
+
+/* TELEFON */
+
+@media (max-width: 700px) {
+    .app-content {
+        margin-left: 0;
+    }
+
+    .topbar {
+        height: 64px;
+        padding: 0 13px;
+    }
+
+    .topbar-title h1 {
+        font-size: 15px;
+    }
+
+    .topbar-title p {
+        font-size: 10px;
+    }
+
+    .logout-btn {
+        padding: 9px 10px;
+        font-size: 10px;
+    }
+
+    main {
+        padding: 19px 14px 35px;
+    }
+
+    .page-intro {
+        padding: 24px 20px;
+    }
+
+    .page-intro h2 {
+        font-size: 23px;
+    }
+
+    .page-intro::after {
+        right: -30px;
+        top: -10px;
+        font-size: 120px;
+    }
+
+    .panel {
+        padding: 16px;
+    }
+
+    .panel h2 {
+        font-size: 18px;
+    }
+
+    .grid-form {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar > input,
+    .toolbar > select {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR DIKENDALIKAN OLEH sidebar.js -->
+
+<div class="app-content">
+
+    <header class="topbar">
+
+        <div class="topbar-title">
+            <div>
+                <h1>Pengurusan Ahli</h1>
+                <p>Portal Salasilah Keluarga Pok Mark Chendol</p>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <button class="logout-btn" id="btnKeluar">
+                Log Keluar
+            </button>
+        </div>
+
+    </header>
+
+    <main>
+
+        <section class="page-intro">
+            <div class="page-intro-content">
+
+                <div class="page-label">
+                    WARISAN • KETURUNAN • KEKELUARGAAN
+                </div>
+
+                <h2>Pengurusan Ahli Keluarga</h2>
+
+                <p>
+                    Mengurus, menyemak dan memelihara maklumat
+                    ahli keluarga dalam arkib Salasilah Keluarga
+                    Pok Mark Chendol.
+                </p>
+
+            </div>
+        </section>
+
+        <div class="section-heading">
+            <h3>Senarai Ahli Keluarga</h3>
+        </div>
+
+        <section class="panel">
+
+            <h2>Rekod Ahli Keluarga</h2>
+
+            <div class="toolbar">
+
+                <input
+                    type="search"
+                    id="carian"
+                    placeholder="Cari nama ahli keluarga..."
+                >
+
+                <select id="tapisGenerasi">
+                    <option value="">Semua Generasi</option>
+                </select>
+
+                <button class="btn-utama" id="btnMuatSemula">
+                    ↻ Muat Semula
+                </button>
+
+            </div>
+
+            <div id="mesej">Memuatkan senarai ahli...</div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Ahli</th>
+                            <th>Generasi</th>
+                            <th>Status</th>
+                            <th>Jenis Rekod</th>
+                            <th>Tindakan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="senaraiAhli">
+                        <tr>
+                            <td colspan="5">Memuatkan...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <section class="panel" id="panelProfil" hidden>
+
+            <div class="section-heading">
+                <h3>Profil Ahli Keluarga</h3>
+            </div>
+
+            <div id="butiranProfil"></div>
+
+        </section>
+
+        <section class="panel" id="panelEdit" hidden>
+
+            <div class="section-heading">
+                <h3>Kemaskini Maklumat Ahli</h3>
+            </div>
+
+            <form id="formEdit">
+
+                <input type="hidden" id="editId">
+
+                <div class="grid-form">
+
+                    <div class="medan">
+                        <label>Nama Penuh</label>
+                        <input id="editNama" required>
+                    </div>
+
+                    <div class="medan">
+                        <label>Jantina</label>
+                        <select id="editJantina">
+                            <option value="">Tidak dinyatakan</option>
+                            <option value="LELAKI">Lelaki</option>
+                            <option value="PEREMPUAN">Perempuan</option>
+                        </select>
+                    </div>
+
+                    <div class="medan">
+                        <label>Tarikh Lahir</label>
+                        <input type="date" id="editLahir">
+                    </div>
+
+                    <div class="medan">
+                        <label>Status Hidup</label>
+                        <select id="editStatus">
+                            <option value="HIDUP">Hidup</option>
+                            <option value="MENINGGAL">Meninggal</option>
+                            <option value="TIDAK DIKETAHUI">Tidak diketahui</option>
+                        </select>
+                    </div>
+
+                    <div class="medan">
+                        <label>Tarikh Meninggal</label>
+                        <input type="date" id="editMeninggal">
+                    </div>
+
+                    <div class="medan">
+                        <label>Generasi</label>
+                        <input type="number" id="editGenerasi" min="1">
+                    </div>
+
+                    <div class="medan">
+                        <label>Tempat Lahir</label>
+                        <input id="editTempatLahir">
+                    </div>
+
+                    <div class="medan">
+                        <label>Tempat Asal</label>
+                        <input id="editTempatAsal">
+                    </div>
+
+                    <div class="medan">
+                        <label>Pekerjaan</label>
+                        <input id="editPekerjaan">
+                    </div>
+
+                    <div class="medan">
+                        <label>Catatan</label>
+                        <input id="editCatatan">
+                    </div>
+
+                    <div class="medan">
+                        <label for="editGambar">Gambar Profil Baharu</label>
+
+                        <input
+                            type="file"
+                            id="editGambar"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
+
+                        <small>
+                            Pilih gambar JPG, PNG atau WEBP.
+                            Maksimum 5MB.
+                        </small>
+
+                        <div style="margin-top:12px;">
+                            <img
+                                id="previewEditGambar"
+                                src=""
+                                alt="Pratonton gambar baharu"
+                                style="display:none;width:130px;height:130px;object-fit:cover;border-radius:12px;"
+                            >
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="toolbar">
+
+                    <button type="submit" class="btn-utama">
+                        Simpan Perubahan
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-edit"
+                        id="btnBatalEdit"
+                    >
+                        Batal
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <footer>
+            SALASILAH KELUARGA POK MARK CHENDOL
+            <br>
+            <span style="font-size:14px;">
+                Warisan keluarga, amanah generasi
+            </span>
+        </footer>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="./js/supabase-config.js?v=4"></script>
+
+<script src="./js/auth.js?v=4"></script>
+
+<script src="./js/auth-guard.js?v=4"></script>
+
+<script src="./js/ahli-keluarga.js?v=1"></script>
+
+<script src="./js/sidebar.js?v=1"></script>
+
+</body>
+</html>
