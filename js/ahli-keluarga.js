@@ -65,11 +65,16 @@
         return true;
     }
 
-    async function muatAhli() {
-        mesej("Memuatkan senarai ahli...");
 
-        const { data, error } = await db
-            .from("ahli_keluarga")
+async function muatAhli() {
+    mesej("Memuatkan senarai ahli...");
+
+    const [
+        { data: dataAhli, error: errorAhli },
+        { data: dataPasangan, error: errorPasangan },
+        { data: dataKeturunan, error: errorKeturunan }
+    ] = await Promise.all([
+        db.from("ahli_keluarga")
             .select(`
                 id,
                 nama_penuh,
@@ -87,24 +92,73 @@
                 rekod_asal
             `)
             .order("generasi", { ascending: true })
-            .order("nama_penuh", { ascending: true });
+            .order("nama_penuh", { ascending: true }),
 
-        if (error) {
-            console.error(error);
-            mesej("Gagal memuatkan ahli: " + error.message, "error");
-            return;
-        }
+        db.from("hubungan_pasangan")
+            .select("pasangan_1, pasangan_2"),
 
-        semuaAhli = data || [];
+        db.from("hubungan_ibubapa_anak")
+            .select("id_ibubapa, id_ibubapa_pasangan, id_anak")
+    ]);
 
-        binaPilihanGenerasi();
-        paparSenarai();
-
-        mesej(
-            `${semuaAhli.length} rekod ahli keluarga berjaya dimuatkan.`,
-            "success"
-        );
+    if (errorAhli) {
+        console.error(errorAhli);
+        mesej("Gagal memuatkan ahli: " + errorAhli.message, "error");
+        return;
     }
+
+    if (errorPasangan) {
+        console.error(errorPasangan);
+        mesej("Gagal memuatkan hubungan pasangan: " + errorPasangan.message, "error");
+        return;
+    }
+
+    if (errorKeturunan) {
+        console.error(errorKeturunan);
+        mesej("Gagal memuatkan hubungan keturunan: " + errorKeturunan.message, "error");
+        return;
+    }
+
+    const semuaRekod = dataAhli || [];
+    const senaraiPasangan = dataPasangan || [];
+    const senaraiKeturunan = dataKeturunan || [];
+
+    // Kenal pasti individu yang mempunyai hubungan pasangan.
+    const idPasangan = new Set();
+
+    senaraiPasangan.forEach(h => {
+        if (h.pasangan_1) idPasangan.add(h.pasangan_1);
+        if (h.pasangan_2) idPasangan.add(h.pasangan_2);
+    });
+
+    // Kenal pasti individu yang mempunyai hubungan keturunan.
+    const idKeturunan = new Set();
+
+    senaraiKeturunan.forEach(h => {
+        if (h.id_ibubapa) idKeturunan.add(h.id_ibubapa);
+        if (h.id_ibubapa_pasangan) idKeturunan.add(h.id_ibubapa_pasangan);
+        if (h.id_anak) idKeturunan.add(h.id_anak);
+    });
+
+    // Pasangan sahaja tanpa hubungan keturunan
+    // tidak dimasukkan dalam senarai ahli keluarga.
+    semuaAhli = semuaRekod.filter(ahli => {
+        const pasanganSahaja =
+            idPasangan.has(ahli.id) &&
+            !idKeturunan.has(ahli.id);
+
+        return !pasanganSahaja;
+    });
+
+    binaPilihanGenerasi();
+    paparSenarai();
+
+    mesej(
+        `${semuaAhli.length} rekod ahli keluarga berjaya dimuatkan.`,
+        "success"
+    );
+}
+
 
     function binaPilihanGenerasi() {
         const pilih = el("tapisGenerasi");
