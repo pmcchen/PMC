@@ -6,11 +6,22 @@
 
     let senaraiCadangan = [];
     let cadanganDipilih = null;
+    let senaraiPendaftaran = [];
 
     const el = (id) => document.getElementById(id);
 
     function paparMesej(teks, jenis = "info") {
         const mesej = el("mesej");
+        if (!mesej) return;
+
+        mesej.textContent = teks;
+        mesej.style.color =
+            jenis === "error" ? "#a83d32" :
+            jenis === "success" ? "#287a45" : "#493522";
+    }
+
+    function paparMesejPendaftaran(teks, jenis = "info") {
+        const mesej = el("mesejPendaftaran");
         if (!mesej) return;
 
         mesej.textContent = teks;
@@ -41,6 +52,172 @@
 
         return true;
     }
+
+    // =========================================
+    // PENDAFTARAN AHLI
+    // =========================================
+
+    async function muatPendaftaran() {
+        paparMesejPendaftaran("Memuatkan senarai pendaftaran...");
+
+        const { data, error } = await db.rpc(
+            "admin_senarai_pendaftaran_menunggu"
+        );
+
+        if (error) {
+            console.error(error);
+            paparMesejPendaftaran(
+                "Gagal memuatkan pendaftaran: " + error.message,
+                "error"
+            );
+            return;
+        }
+
+        senaraiPendaftaran = data || [];
+
+        const tbody = el("senaraiPendaftaran");
+        tbody.replaceChildren();
+
+        if (senaraiPendaftaran.length === 0) {
+            const tr = document.createElement("tr");
+            const td = buatElemen(
+                "td",
+                "Tiada akaun menunggu kelulusan."
+            );
+            td.colSpan = 5;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+
+            paparMesejPendaftaran(
+                "Semua pendaftaran telah disemak."
+            );
+            return;
+        }
+
+        senaraiPendaftaran.forEach((item) => {
+            const tr = document.createElement("tr");
+
+            const tarikh = item.created_at
+                ? new Date(item.created_at).toLocaleString("ms-MY")
+                : "-";
+
+            tr.appendChild(
+                buatElemen("td", item.nama_pengguna || "-")
+            );
+
+            tr.appendChild(
+                buatElemen("td", item.email || "-")
+            );
+
+            tr.appendChild(
+                buatElemen("td", tarikh)
+            );
+
+            const tdStatus = document.createElement("td");
+            tdStatus.appendChild(
+                buatElemen(
+                    "span",
+                    item.status_akaun,
+                    "status"
+                )
+            );
+            tr.appendChild(tdStatus);
+
+            const tdTindakan = document.createElement("td");
+
+            const btnLulus = buatElemen(
+                "button",
+                "Luluskan",
+                "lulus"
+            );
+
+            btnLulus.type = "button";
+            btnLulus.addEventListener("click", () => {
+                prosesPendaftaran(item.user_id, "DILULUSKAN");
+            });
+
+            const btnTolak = buatElemen(
+                "button",
+                "Tolak",
+                "tolak"
+            );
+
+            btnTolak.type = "button";
+            btnTolak.addEventListener("click", () => {
+                prosesPendaftaran(item.user_id, "DITOLAK");
+            });
+
+            tdTindakan.append(btnLulus, btnTolak);
+            tr.appendChild(tdTindakan);
+
+            tbody.appendChild(tr);
+        });
+
+        paparMesejPendaftaran(
+            senaraiPendaftaran.length +
+            " akaun menunggu kelulusan."
+        );
+    }
+
+    async function prosesPendaftaran(userId, keputusan) {
+        const item = senaraiPendaftaran.find(
+            x => x.user_id === userId
+        );
+
+        if (!item) return;
+
+        const nama = item.nama_pengguna || item.email || "ahli ini";
+
+        const pengesahan = confirm(
+            keputusan === "DILULUSKAN"
+                ? "Luluskan akaun " + nama + "?"
+                : "Tolak pendaftaran akaun " + nama + "?"
+        );
+
+        if (!pengesahan) return;
+
+        paparMesejPendaftaran(
+            "Sedang memproses pendaftaran..."
+        );
+
+        const { data, error } = await db.rpc(
+            "admin_proses_pendaftaran_ahli",
+            {
+                p_user_id: userId,
+                p_keputusan: keputusan
+            }
+        );
+
+        if (error) {
+            console.error(error);
+            paparMesejPendaftaran(
+                "Gagal memproses akaun: " + error.message,
+                "error"
+            );
+            return;
+        }
+
+        if (data !== true) {
+            paparMesejPendaftaran(
+                "Sistem tidak mengesahkan keputusan.",
+                "error"
+            );
+            return;
+        }
+
+        paparMesejPendaftaran(
+            keputusan === "DILULUSKAN"
+                ? "Akaun " + nama + " berjaya diluluskan."
+                : "Pendaftaran " + nama + " telah ditolak.",
+            "success"
+        );
+
+        await muatPendaftaran();
+    }
+
+    // =========================================
+    // CADANGAN AHLI SEDIA ADA
+    // =========================================
 
     async function muatCadangan() {
         paparMesej("Memuatkan senarai cadangan...");
@@ -114,6 +291,7 @@
                 "Butiran",
                 "butiran"
             );
+
             btnButiran.type = "button";
             btnButiran.addEventListener("click", () => {
                 paparButiran(item.id);
@@ -133,7 +311,6 @@
     async function dapatkanUrlGambar(path) {
         if (!path) return null;
 
-        // Jika data sudah mengandungi URL penuh
         if (/^https?:\/\//i.test(path)) {
             return path;
         }
@@ -204,7 +381,6 @@
 
         kandungan.appendChild(jadual);
 
-        // Paparan gambar profil
         const pathGambar = data.gambar_url;
 
         if (pathGambar) {
@@ -240,7 +416,6 @@
             }
         }
 
-        // Butang keputusan
         const ruangButang = document.createElement("div");
         ruangButang.style.marginTop = "20px";
 
@@ -347,17 +522,28 @@
         await muatCadangan();
     }
 
+    // =========================================
+    // MULA SISTEM
+    // =========================================
+
     async function mula() {
         try {
             const dibenarkan = await semakAdmin();
 
             if (!dibenarkan) return;
 
-            await muatCadangan();
+            await Promise.all([
+                muatPendaftaran(),
+                muatCadangan()
+            ]);
 
         } catch (error) {
             console.error(error);
             paparMesej(
+                error.message || "Ralat semasa membuka panel admin.",
+                "error"
+            );
+            paparMesejPendaftaran(
                 error.message || "Ralat semasa membuka panel admin.",
                 "error"
             );
